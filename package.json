@@ -26,7 +26,8 @@
     "@server": "dist/server",
     "@services": "dist/services",
     "@controllers": "dist/controllers",
-    "@routes": "dist/routes"
+    "@routes": "dist/routes",
+    "@middlewares": "dist/middlewares"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
@@ -66,6 +67,9 @@
     "@types/cors": "^2.8.12",
     "@types/helmet": "^4.0.0",
     "@types/mongoose": "^5.11.97",
+    "@types/swagger-jsdoc": "^6.0.1",
+    "@types/swagger-ui-express": "^4.1.3",
+    "@types/validator": "^13.6.6",
     "command-line-args": "^5.2.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -78,7 +82,10 @@
     "jsonfile": "^6.1.0",
     "module-alias": "^2.2.2",
     "mongoose": "^6.0.12",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-ui-express": "^4.1.6",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/command-line-args": "^5.2.0",
