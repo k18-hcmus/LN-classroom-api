@@ -5,6 +5,7 @@ const ClassroomSchema: Schema = new Schema(
     {
         name: { type: String, required: true },
         ownerId: { type: mongoose.Types.ObjectId, required: true },
+        schoolYear: { type: String, required: true },
         teachersId: { type: [mongoose.Types.ObjectId], required: true },
         studentsId: { type: [mongoose.Types.ObjectId], required: true },
         description: { type: String },

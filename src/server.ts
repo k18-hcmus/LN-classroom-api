@@ -50,9 +50,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 const staticDir = path.join(__dirname, 'public');
 app.use(express.static(staticDir));
-app.get('/', (req: Request, res: Response) => {
-    res.sendFile('./public/index.html');
-});
 
 // Export express instance
 export default app;
