@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import { UserModel } from "@models/user.model";
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
+import bcrypt from 'bcryptjs'
 
 const passwordValidation = (password: string) => {
     return isLength(password, { min: 6 })
@@ -9,6 +10,10 @@ const passwordValidation = (password: string) => {
 
 const usernameValidation = (username: string) => {
     return isLength(username, { min: 6 })
+}
+
+interface UserDocument extends UserModel {
+    comparePassword: (password: string) => boolean
 }
 
 const UserSchema: Schema = new Schema(
@@ -25,4 +30,8 @@ const UserSchema: Schema = new Schema(
     }
 )
 
-export default mongoose.model<UserModel>('users', UserSchema)
+UserSchema.methods.comparePassword = function (this: UserModel, password: string) {
+    return bcrypt.compareSync(password, this.password)
+};
+
+export default mongoose.model<UserDocument>('users', UserSchema)

@@ -11,6 +11,7 @@ import rootRouter from './routes';
 import logger from '@shared/Logger';
 import mongoose from 'mongoose';
 import cors from 'cors'
+import passport from 'passport'
 
 const app = express();
 const { BAD_REQUEST } = StatusCodes;
@@ -35,6 +36,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(helmet());
+app.use(passport.initialize());
 
 // Add APIs
 app.use('/api', rootRouter);
