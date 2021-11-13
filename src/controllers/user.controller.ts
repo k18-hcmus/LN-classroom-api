@@ -1,7 +1,6 @@
+import { UserModel } from "@models/user.model";
 import * as userService from "@services/user.service";
 import { Request, Response } from "express";
-import { UserModel } from "@models/user.model";
-
 
 export const createUser = async (req: Request, res: Response) => {
     const user = req.body as unknown as UserModel
