@@ -23,7 +23,8 @@ const UserSchema: Schema = new Schema(
         lastName: { type: String, required: true },
         username: { type: String, required: true, index: { unique: true }, validate: [usernameValidation, 'Username must have at least 6 characters!'] },
         password: { type: String, required: true, validate: [passwordValidation, 'Password must have at least 6 characters!'] },
-        isActive: { type: Boolean, default: false }
+        isActive: { type: Boolean, default: false },
+        provider: { type: String, default: 'local' }
     },
     {
         timestamps: true
