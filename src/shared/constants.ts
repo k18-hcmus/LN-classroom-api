@@ -9,4 +9,6 @@ export const JWT_KEY = "jwt"
 export const JWT_SECRET = "S3cr3t"
 export const UNAUTHORIZE_MESSAGE = "Unauthorize"
 export const REFRESH_TOKEN_MESSAGE = "Refresh token successfully!"
+export const EMAIL_EXISTED_ERROR = "Your email's already existed!"
+export const USERNAME_EXISTED_ERROR = "Your username's already existed!"
 

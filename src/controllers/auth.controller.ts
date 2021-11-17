@@ -26,6 +26,17 @@ export const login = async (req: Request, res: Response) => {
     res.json(response)
 }
 
+export const googleLogin = async (req: Request, res: Response) => {
+    const user = req.user as UserModel
+
+    const accessToken = RefreshTokenService.createNewAccessToken(user.id)
+    const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
+    const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
+    res.clearCookie(JWT_KEY)
+    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
+    res.redirect(`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`)
+}
+
 export const refreshToken = async (req: Request, res: Response,) => {
     try {
         if (req.cookies && req.cookies[JWT_KEY]) {

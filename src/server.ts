@@ -25,7 +25,10 @@ const { BAD_REQUEST } = StatusCodes;
 // Connect to mongoose
 mongoose.connect(process.env.MONGO_DB_URI as string).then(() => console.log("Database connected")).catch((err) => console.log('Connection failed:\n', err))
 
-app.use(cors())
+app.use(cors({
+    origin: [`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`],
+    credentials: true
+}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

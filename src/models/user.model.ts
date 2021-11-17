@@ -6,5 +6,6 @@ export type UserModel = mongoose.Document & {
     username: string,
     password: string,
     email: string,
-    isActive?: boolean
+    isActive?: boolean,
+    provider: string
 }
