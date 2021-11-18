@@ -82,6 +82,9 @@
       ],
       "@middlewares/*": [
         "src/middlewares/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
       ]
     },
   },
