@@ -9,3 +9,7 @@ export const pErr = (err: Error) => {
 export const getRandomInt = () => {
     return Math.floor(Math.random() * 1_000_000_000_000);
 };
+
+export const stringToBoolean = (value: string) => {
+    return (value === 'true')
+}
