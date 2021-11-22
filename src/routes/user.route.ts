@@ -1,9 +1,11 @@
+import authenticateJWT from '@middlewares/jwt-auth.mdw';
+import { changePassword, getUserById, updateProfile } from '@controllers/user.controller';
 import { Router } from 'express';
-import { createUser } from '@controllers/user.controller';
 
 
 // User-route
 const router = Router();
+router.use(authenticateJWT)
 
 /**
  * @swagger
@@ -84,7 +86,9 @@ const router = Router();
  *                 _id: 6187f47c268e144dbeb5d9bc
  */
 
-router.post('/', createUser);
+router.post('/update', updateProfile);
+router.post('/change-password', changePassword);
+router.get('/:id', getUserById);
 
 
 export default router;

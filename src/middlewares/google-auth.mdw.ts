@@ -26,7 +26,7 @@ passport.use(new passportGoogle.Strategy({
                 user = await userService.createUser({
                     firstName: profile.name?.givenName || " ",
                     lastName: profile.name?.familyName || " ",
-                    username: accessToken,
+                    username: email,
                     email: email,
                     password: accessToken,
                     provider: 'google'

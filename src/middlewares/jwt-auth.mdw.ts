@@ -20,8 +20,7 @@ const authenticateJWT = async (req: Request, res: Response, next: NextFunction) 
             if (!user) {
                 return res.status(StatusCodes.UNAUTHORIZED).send(UNAUTHORIZE_MESSAGE);
             }
-            const { password, ...responeUser } = user.toObject()
-            req.user = responeUser
+            req.user = user
 
             return next()
         }

@@ -1,7 +1,8 @@
 import mongoose, { Schema } from "mongoose";
-import { UserModel } from "@models/user.model";
+import { UserDocument, UserModel } from "@models/user.model";
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
+import isInt from 'validator/lib/isInt';
 import bcrypt from 'bcryptjs'
 
 const passwordValidation = (password: string) => {
@@ -12,10 +13,6 @@ const usernameValidation = (username: string) => {
     return isLength(username, { min: 6 })
 }
 
-interface UserDocument extends UserModel {
-    comparePassword: (password: string) => boolean
-}
-
 const UserSchema: Schema = new Schema(
     {
         email: { type: String, required: true, index: { unique: true }, validate: [isEmail, 'Invalid email!'] },
@@ -24,7 +21,8 @@ const UserSchema: Schema = new Schema(
         username: { type: String, required: true, index: { unique: true }, validate: [usernameValidation, 'Username must have at least 6 characters!'] },
         password: { type: String, required: true, validate: [passwordValidation, 'Password must have at least 6 characters!'] },
         isActive: { type: Boolean, default: false },
-        provider: { type: String, default: 'local' }
+        provider: { type: String, default: 'local' },
+        studentId: { type: String, validate: [isInt, 'Student Id can only contain digits!'] }
     },
     {
         timestamps: true

@@ -7,5 +7,10 @@ export type UserModel = mongoose.Document & {
     password: string,
     email: string,
     isActive?: boolean,
-    provider: string
+    provider: string,
+    studentId?: string
+}
+
+export interface UserDocument extends UserModel {
+    comparePassword: (password: string) => boolean
 }

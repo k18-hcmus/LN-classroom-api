@@ -8,6 +8,7 @@ const ClassroomSchema: Schema = new Schema(
         schoolYear: { type: String, required: true },
         teachersId: { type: [{ type: mongoose.Types.ObjectId, ref: 'users' }], required: true },
         studentsId: { type: [{ type: mongoose.Types.ObjectId, ref: 'users' }], required: true },
+        classCode: { type: String, required: true, index: { unique: true } },
         description: { type: String },
     },
     {

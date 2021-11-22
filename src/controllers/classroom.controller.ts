@@ -2,13 +2,18 @@ import * as classroomService from "@services/classroom.service";
 import { Request, Response } from "express";
 import { ClassroomModel } from "@models/classroom.model";
 import { StatusCodes } from "http-status-codes";
-import { INVITATION_EMAIL_ERROR } from "@shared/constants";
+import { INVITATION_EMAIL_ERROR, UNEXPECTED_ERROR } from "@shared/constants";
 import { UserModel } from "@models/user.model";
 import { stringToBoolean } from "@shared/functions";
+import { mapRoleToClassrooms, Role } from "@services/role.service";
 
-export const getAllClassroom = async (req: Request, res: Response) => {
-    const classroom = await classroomService.getAll()
-    res.json(classroom)
+export const getAllClassroomByUserId = async (req: Request, res: Response) => {
+    const { _id } = req.user as unknown as UserModel
+    const classrooms = await classroomService.getClassroomByUserId(_id)
+    const result = {} as { enrolledClassrooms: any, teachingClassrooms: any }
+    result.enrolledClassrooms = mapRoleToClassrooms(_id, classrooms.enrolledClassrooms)
+    result.teachingClassrooms = mapRoleToClassrooms(_id, classrooms.teachingClassrooms)
+    res.json(result)
 }
 
 export const createClassroom = async (req: Request, res: Response) => {
@@ -21,7 +26,8 @@ export const createClassroom = async (req: Request, res: Response) => {
         studentsId: [],
         description: classroom.description
     } as unknown as ClassroomModel)
-    res.json(result)
+
+    res.json({ ...result, role: Role.OWNER })
 }
 
 interface InviteToClassromParams {
@@ -56,4 +62,37 @@ export const joinClassByLink = async (req: Request, res: Response) => {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: INVITATION_EMAIL_ERROR })
     }
     res.status(StatusCodes.BAD_REQUEST).json({ message: INVITATION_EMAIL_ERROR })
+}
+
+export const resetClassCode = async (req: Request, res: Response) => {
+    const { classId } = req.body as unknown as { classId: string }
+    const result = await classroomService.resetClasscode(classId)
+    if (result) {
+        return res.json(result)
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+export const joinClassroomByClassCode = async (req: Request, res: Response) => {
+    const { classCode } = req.body as unknown as { classCode: string }
+    const user = req.user as UserModel
+    const classroom = await classroomService.getClassroomByClassCode(classCode)
+    if (classroom) {
+        const isUserInClassrom = classroomService.isUserInClassrom(user._id, classroom)
+        if (!isUserInClassrom) {
+            const result = await classroomService.addNewUserToClassroom(user._id, classroom._id, true)
+            return res.json({ ...result, role: Role.STUDENT })
+        }
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+export const removeFromClassroom = async (req: Request, res: Response) => {
+    const { classId, isStudent, userId } = req.body as unknown as { classId: string, isStudent: boolean, userId: string }
+    const classroom = await classroomService.removeFromClassroom(classId, userId, isStudent)
+    if (classroom) {
+        return res.json({ studentsId: classroom.studentsId, teachersId: classroom.teachersId })
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
 }
