@@ -20,7 +20,7 @@ logger.timestamp = false;
         // Copy front-end files
         await copy('./src/public', './dist/public');
         // Copy production env file
-        await copy('./src/pre-start/env/production.env', './dist/pre-start/env/production.env');
+        // await copy('./src/pre-start/env/production.env', './app/dist/pre-start/env/production.env');
         // Copy back-end files
         await exec('tsc --build tsconfig.prod.json', './')
     } catch (err) {
