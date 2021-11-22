@@ -25,7 +25,7 @@ export const login = async (req: Request, res: Response) => {
 
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
+    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true })
     res.json(response)
 }
 
@@ -53,7 +53,7 @@ export const googleLogin = async (req: Request, res: Response) => {
     const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
+    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true })
     res.redirect(`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`)
 }
 
@@ -68,7 +68,7 @@ export const refreshToken = async (req: Request, res: Response,) => {
                 const newJwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
 
                 res.clearCookie(JWT_KEY)
-                res.cookie(JWT_KEY, newJwtPayload, { httpOnly: true })
+                res.cookie(JWT_KEY, newJwtPayload, { httpOnly: true, sameSite: 'none', secure: true })
                 return res.json({ message: REFRESH_TOKEN_MESSAGE })
             }
             return res.status(StatusCodes.UNAUTHORIZED).send(UNAUTHORIZE_MESSAGE);
