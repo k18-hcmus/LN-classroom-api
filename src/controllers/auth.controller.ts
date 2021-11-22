@@ -24,7 +24,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
-    res.clearCookie(JWT_KEY)
+    res.clearCookie(JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' })
     res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true })
     res.json(response)
 }
@@ -52,7 +52,7 @@ export const googleLogin = async (req: Request, res: Response) => {
     const accessToken = RefreshTokenService.createNewAccessToken(user.id)
     const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
-    res.clearCookie(JWT_KEY)
+    res.clearCookie(JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' })
     res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true })
     res.redirect(`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`)
 }
@@ -67,7 +67,7 @@ export const refreshToken = async (req: Request, res: Response,) => {
                 const { accessToken, refreshToken } = tokens
                 const newJwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
 
-                res.clearCookie(JWT_KEY)
+                res.clearCookie(JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' })
                 res.cookie(JWT_KEY, newJwtPayload, { httpOnly: true, sameSite: 'none', secure: true })
                 return res.json({ message: REFRESH_TOKEN_MESSAGE })
             }
@@ -82,6 +82,6 @@ export const refreshToken = async (req: Request, res: Response,) => {
 }
 
 export const logout = async (req: Request, res: Response) => {
-    res.clearCookie(JWT_KEY)
+    res.clearCookie(JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' })
     res.status(StatusCodes.OK).send("OK")
 }
