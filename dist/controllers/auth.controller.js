@@ -62,7 +62,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken);
     res.clearCookie(constants_1.JWT_KEY);
-    res.cookie(constants_1.JWT_KEY, jwtPayload, { httpOnly: true });
+    res.cookie(constants_1.JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true });
     res.json(response);
 });
 exports.login = login;
@@ -89,7 +89,7 @@ const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const refreshToken = yield RefreshTokenService.createNewRefreshToken(user.id);
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken);
     res.clearCookie(constants_1.JWT_KEY);
-    res.cookie(constants_1.JWT_KEY, jwtPayload, { httpOnly: true });
+    res.cookie(constants_1.JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true });
     res.redirect(`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`);
 });
 exports.googleLogin = googleLogin;
@@ -103,7 +103,7 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 const { accessToken, refreshToken } = tokens;
                 const newJwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken);
                 res.clearCookie(constants_1.JWT_KEY);
-                res.cookie(constants_1.JWT_KEY, newJwtPayload, { httpOnly: true });
+                res.cookie(constants_1.JWT_KEY, newJwtPayload, { httpOnly: true, sameSite: 'none', secure: true });
                 return res.json({ message: constants_1.REFRESH_TOKEN_MESSAGE });
             }
             return res.status(http_status_codes_1.StatusCodes.UNAUTHORIZED).send(constants_1.UNAUTHORIZE_MESSAGE);

@@ -22,6 +22,7 @@ const { BAD_REQUEST } = http_status_codes_1.default;
  ***********************************************************************************/
 // Connect to mongoose
 mongoose_1.default.connect(process.env.MONGO_DB_URI).then(() => console.log("Database connected")).catch((err) => console.log('Connection failed:\n', err));
+app.set('trust proxy', 1);
 app.use((0, cors_1.default)({
     origin: [`${process.env.CLIENT_HOST}`],
     credentials: true
