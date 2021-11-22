@@ -4,7 +4,7 @@ import User from '@schemas/user.schema'
 
 passport.use(new passportLocal.Strategy(async (username, password, done) => {
     try {
-        const user = await User.findOne({ username: username }).exec()
+        const user = await User.findOne({ username: username, provider: 'local' }).exec()
         if (!user) {
             return done(null, false);
         }

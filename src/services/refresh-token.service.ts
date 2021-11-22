@@ -16,8 +16,8 @@ export const performRefreshToken = async (refreshToken: string | undefined): Pro
     if (storedToken) {
         await RefreshToken.deleteOne({ _id: storedToken._id })
 
-        const refreshToken = await createNewRefreshToken(storedToken.userId);
-        const accessToken = await createNewAccessToken(storedToken.userId);
+        const refreshToken = await createNewRefreshToken(storedToken.userId.toString());
+        const accessToken = await createNewAccessToken(storedToken.userId.toString());
 
         return {
             [ACCESS_TOKEN]: accessToken,

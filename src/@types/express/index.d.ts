@@ -1,9 +1,10 @@
-import { IUser } from "@schemas/user.schema";
+import { UserDocument, UserModel } from "@models/user.model";
 
 declare module 'express' {
     export interface Request {
         body: {
-            user: IUser
+            user: UserModel,
+            role: string;
         };
     }
 }

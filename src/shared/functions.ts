@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import logger from './Logger';
 
 export const pErr = (err: Error) => {
@@ -12,4 +13,8 @@ export const getRandomInt = () => {
 
 export const stringToBoolean = (value: string) => {
     return (value === 'true')
+}
+
+export const stringToObjectId = (value: string) => {
+    return new mongoose.Types.ObjectId(value)
 }

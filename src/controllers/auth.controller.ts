@@ -4,9 +4,12 @@ import { JWT_KEY, REFRESH_TOKEN_MESSAGE, UNAUTHORIZE_MESSAGE } from "@shared/con
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
+import * as userService from "@services/user.service";
 
 export const checkAuthentication = async (req: Request, res: Response) => {
-    res.json(req.user)
+    const user = req.user as UserModel
+    const { password, ...response } = user.toObject()
+    res.json(response)
 }
 
 export const login = async (req: Request, res: Response) => {
@@ -24,6 +27,23 @@ export const login = async (req: Request, res: Response) => {
     res.clearCookie(JWT_KEY)
     res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
     res.json(response)
+}
+
+export const registerUser = async (req: Request, res: Response) => {
+    const user = req.body as unknown as UserModel
+    const validationResult = await userService.validateNewUser(user)
+    console.log(validationResult)
+    if (validationResult) {
+        return res.status(StatusCodes.BAD_REQUEST).json(validationResult)
+    }
+    const result = await userService.createUser({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        email: user.email,
+        password: user.password
+    } as UserModel)
+    res.json({ _id: result._id })
 }
 
 export const googleLogin = async (req: Request, res: Response) => {
@@ -59,4 +79,9 @@ export const refreshToken = async (req: Request, res: Response,) => {
         console.error(err)
         return res.status(StatusCodes.UNAUTHORIZED).send(UNAUTHORIZE_MESSAGE);
     }
+}
+
+export const logout = async (req: Request, res: Response) => {
+    res.clearCookie(JWT_KEY)
+    res.status(StatusCodes.OK).send("OK")
 }
