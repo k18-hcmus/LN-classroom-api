@@ -61,7 +61,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         refreshToken = yield RefreshTokenService.createNewRefreshToken(user.id);
     }
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken);
-    res.clearCookie(constants_1.JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' });
     res.cookie(constants_1.JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true });
     res.json(response);
 });
@@ -88,7 +87,6 @@ const googleLogin = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const accessToken = RefreshTokenService.createNewAccessToken(user.id);
     const refreshToken = yield RefreshTokenService.createNewRefreshToken(user.id);
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken);
-    res.clearCookie(constants_1.JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' });
     res.cookie(constants_1.JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: true });
     res.redirect(`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`);
 });
@@ -102,7 +100,6 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             if (tokens) {
                 const { accessToken, refreshToken } = tokens;
                 const newJwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken);
-                res.clearCookie(constants_1.JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' });
                 res.cookie(constants_1.JWT_KEY, newJwtPayload, { httpOnly: true, sameSite: 'none', secure: true });
                 return res.json({ message: constants_1.REFRESH_TOKEN_MESSAGE });
             }
@@ -117,7 +114,7 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.refreshToken = refreshToken;
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie(constants_1.JWT_KEY, { domain: process.env.CLIENT_HOST, path: '/', httpOnly: true, secure: true, sameSite: 'none' });
+    res.cookie(constants_1.JWT_KEY, {}, { httpOnly: true, sameSite: 'none', secure: true, expires: new Date(1) });
     res.status(http_status_codes_1.StatusCodes.OK).send("OK");
 });
 exports.logout = logout;
