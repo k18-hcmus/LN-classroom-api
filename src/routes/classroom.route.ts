@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createClassroom, getAllClassroomByUserId, getInviteLink, inviteToClassromByEmail, joinClassByLink, joinClassroomByClassCode, removeFromClassroom, resetClassCode } from '@controllers/classroom.controller';
+import { createClassroom, getAllClassroomByUserId, getGradeStructure, getInviteLink, inviteToClassromByEmail, joinClassByLink, joinClassroomByClassCode, removeFromClassroom, resetClassCode } from '@controllers/classroom.controller';
 import authenticateJWT from '@middlewares/jwt-auth.mdw';
 import checkPermission from '@middlewares/role-base.mdw';
 import { Role } from '@services/role.service';
@@ -16,5 +16,6 @@ router.post('/send-invitation', checkPermission(Role.UPPER_ROLE), inviteToClassr
 router.post('/reset-classcode', checkPermission(Role.UPPER_ROLE), resetClassCode);
 router.post('/join-by-classcode', joinClassroomByClassCode);
 router.delete('/remove', checkPermission(Role.UPPER_ROLE), removeFromClassroom);
+router.get('/grade-structure', checkPermission(Role.ANY), getGradeStructure);
 
 export default router;
