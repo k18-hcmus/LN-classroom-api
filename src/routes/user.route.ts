@@ -86,7 +86,7 @@ router.use(authenticateJWT)
  *                 _id: 6187f47c268e144dbeb5d9bc
  */
 
-router.post('/update', updateProfile);
+router.patch('/', updateProfile);
 router.post('/change-password', changePassword);
 router.get('/:id', getUserById);
 
