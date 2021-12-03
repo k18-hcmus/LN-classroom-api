@@ -10,12 +10,12 @@ router.use(authenticateJWT)
 
 router.get('/', getAllClassroomByUserId);
 router.post('/', createClassroom);
-router.get('/invitation', checkPermission(Role.ANY), getInviteLink);
 router.post('/invitation', joinClassByLink);
-router.post('/send-invitation', checkPermission(Role.UPPER_ROLE), inviteToClassromByEmail);
-router.post('/reset-classcode', checkPermission(Role.UPPER_ROLE), resetClassCode);
 router.post('/join-by-classcode', joinClassroomByClassCode);
-router.delete('/remove', checkPermission(Role.UPPER_ROLE), removeFromClassroom);
-router.get('/grade-structure', checkPermission(Role.ANY), getGradeStructure);
+router.get('/:classId/invitation', checkPermission(Role.ANY), getInviteLink);
+router.post('/:classId/reset-classcode', checkPermission(Role.UPPER_ROLE), resetClassCode);
+router.post('/:classId/send-invitation', checkPermission(Role.UPPER_ROLE), inviteToClassromByEmail);
+router.get('/:classId/grade-structure', checkPermission(Role.ANY), getGradeStructure);
+router.delete('/:classId/:userId', checkPermission(Role.UPPER_ROLE), removeFromClassroom);
 
 export default router;
