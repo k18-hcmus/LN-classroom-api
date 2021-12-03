@@ -26,8 +26,7 @@ export const getClassroomByUserId = async (userId: string) => {
     }
 }
 
-export const removeFromClassroom = async (classId: string, userId: string, isStudent: boolean) => {
-    const classroom = await getClassroomById(classId);
+export const removeFromClassroom = async (classroom: ClassroomModel, userId: string, isStudent: boolean) => {
     if (classroom) {
         if (isUserOwner(userId, classroom)) {
             return null
@@ -115,8 +114,7 @@ export const getClassroomByClassCode = async (classCode: string) => {
     return Classroom.findOne({ classCode }).exec()
 }
 
-export const resetClasscode = async (classId: string) => {
-    const classroom = await getClassroomById(classId)
+export const resetClasscode = async (classroom: ClassroomModel) => {
     const classCode = await createClassCode();
     if (classroom) {
         classroom.classCode = classCode
@@ -125,8 +123,7 @@ export const resetClasscode = async (classId: string) => {
     return null;
 }
 
-export const addNewUserToClassroom = async (userId: string, classId: string, isStudent: boolean) => {
-    const classroom = await getClassroomById(classId);
+export const addNewUserToClassroom = async (userId: string, classroom: ClassroomModel, isStudent: boolean) => {
     if (classroom) {
         if (isUserInClassrom(userId, classroom)) {
             return null

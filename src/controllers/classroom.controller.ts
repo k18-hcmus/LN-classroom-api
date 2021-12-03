@@ -1,4 +1,5 @@
 import * as classroomService from "@services/classroom.service";
+import * as gradeStructureService from "@services/grade-structures.service";
 import { Request, Response } from "express";
 import { ClassroomModel } from "@models/classroom.model";
 import { StatusCodes } from "http-status-codes";
@@ -6,6 +7,7 @@ import { INVITATION_EMAIL_ERROR, UNEXPECTED_ERROR } from "@shared/constants";
 import { UserModel } from "@models/user.model";
 import { stringToBoolean } from "@shared/functions";
 import { mapRoleToClassrooms, Role } from "@services/role.service";
+import { get } from "lodash";
 
 export const getAllClassroomByUserId = async (req: Request, res: Response) => {
     const { _id } = req.user as unknown as UserModel
@@ -32,20 +34,21 @@ export const createClassroom = async (req: Request, res: Response) => {
 
 interface InviteToClassromParams {
     isStudent: boolean,
-    classId: string,
     classroomName: string,
     email: string
 }
 
 export const inviteToClassromByEmail = async (req: Request, res: Response) => {
     const payload = req.body as unknown as InviteToClassromParams
-    const result = await classroomService.inviteToClassromByEmail(payload)
+    const classroom = req.body.classroom
+    const result = await classroomService.inviteToClassromByEmail({ ...payload, classId: classroom.id })
     res.json({ isSent: result })
 }
 
 export const getInviteLink = (req: Request, res: Response) => {
-    const { classId, isStudent } = req.query as unknown as { classId: string, isStudent: string }
-    const inviteLink = classroomService.createInviteLink(classId, stringToBoolean(isStudent))
+    const classroom = req.body.classroom
+    const { isStudent } = req.query as unknown as { isStudent: string }
+    const inviteLink = classroomService.createInviteLink(classroom.id, stringToBoolean(isStudent))
     res.json(inviteLink)
 }
 
@@ -65,8 +68,8 @@ export const joinClassByLink = async (req: Request, res: Response) => {
 }
 
 export const resetClassCode = async (req: Request, res: Response) => {
-    const { classId } = req.body as unknown as { classId: string }
-    const result = await classroomService.resetClasscode(classId)
+    const classroom = req.body.classroom
+    const result = await classroomService.resetClasscode(classroom)
     if (result) {
         return res.json(result)
     }
@@ -89,10 +92,18 @@ export const joinClassroomByClassCode = async (req: Request, res: Response) => {
 }
 
 export const removeFromClassroom = async (req: Request, res: Response) => {
-    const { classId, isStudent, userId } = req.body as unknown as { classId: string, isStudent: boolean, userId: string }
-    const classroom = await classroomService.removeFromClassroom(classId, userId, isStudent)
-    if (classroom) {
-        return res.json({ studentsId: classroom.studentsId, teachersId: classroom.teachersId })
+    const { userId } = req.params
+    const { isStudent } = req.body as unknown as { isStudent: boolean }
+    const classroom = req.body.classroom
+    const result = await classroomService.removeFromClassroom(classroom, userId, isStudent)
+    if (result) {
+        return res.json({ studentsId: result.studentsId, teachersId: result.teachersId })
     }
     res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+export const getGradeStructure = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const result = await gradeStructureService.getClassroomGradeStructure(classroom.id)
+    return res.json(get(result, 'gradeStructuresDetails', []))
 }
