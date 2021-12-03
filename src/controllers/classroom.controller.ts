@@ -1,4 +1,5 @@
 import * as classroomService from "@services/classroom.service";
+import * as gradeStructureService from "@services/grade-structures.service";
 import { Request, Response } from "express";
 import { ClassroomModel } from "@models/classroom.model";
 import { StatusCodes } from "http-status-codes";
@@ -6,6 +7,7 @@ import { INVITATION_EMAIL_ERROR, UNEXPECTED_ERROR } from "@shared/constants";
 import { UserModel } from "@models/user.model";
 import { stringToBoolean } from "@shared/functions";
 import { mapRoleToClassrooms, Role } from "@services/role.service";
+import { get } from "lodash";
 
 export const getAllClassroomByUserId = async (req: Request, res: Response) => {
     const { _id } = req.user as unknown as UserModel
@@ -93,6 +95,15 @@ export const removeFromClassroom = async (req: Request, res: Response) => {
     const classroom = await classroomService.removeFromClassroom(classId, userId, isStudent)
     if (classroom) {
         return res.json({ studentsId: classroom.studentsId, teachersId: classroom.teachersId })
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+export const getGradeStructure = async (req: Request, res: Response) => {
+    const classId = req.query.classId as string
+    if (classId) {
+        const result = await gradeStructureService.getClassroomGradeStructure(classId)
+        return res.json(get(result, 'gradeStructuresDetails', []))
     }
     res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
 }

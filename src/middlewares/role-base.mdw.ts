@@ -12,6 +12,7 @@ const checkPermission = (role: Role) =>
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const classId = get(req.body, 'classId') || get(req.query, 'classId')
+            console.log(classId)
             if (classId) {
                 const classroom = await classroomService.getClassroomById(classId)
                 if (classroom) {
