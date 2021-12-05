@@ -1,5 +1,5 @@
 import { ClassroomModel } from '@models/classroom.model';
-import Classroom from '@schemas/classroom.schema';
+import ClassroomSchema from '@schemas/classroom.schema';
 import { INVITATION_EMAIL_EXPIRED, INVITATION_EMAIL_SUBJECT, JWT_SECRET, VIEWS } from "@shared/constants";
 import { stringToObjectId } from '@shared/functions';
 import { prepareHtmlContent, sendMailWithHtml } from "@utils/mailer";
@@ -12,13 +12,13 @@ const secretOrKey = process.env.JWT_SECRET_KEY || JWT_SECRET
 
 
 export const getAll = async () => {
-    return await Classroom.find().exec()
+    return await ClassroomSchema.find().exec()
 }
 
 export const getClassroomByUserId = async (userId: string) => {
     const id = stringToObjectId(userId)
-    const enrolledClassrooms = await Classroom.find({ studentsId: id }).exec()
-    const teachingClassrooms = await Classroom.find({ teachersId: id }).exec()
+    const enrolledClassrooms = await ClassroomSchema.find({ studentsId: id }).exec()
+    const teachingClassrooms = await ClassroomSchema.find({ teachersId: id }).exec()
 
     return {
         enrolledClassrooms,
@@ -46,18 +46,18 @@ const createClassCode = async () => {
     let classCode;
     do {
         classCode = randomstring.generate(8)
-        result = await Classroom.findOne({ classCode })
+        result = await ClassroomSchema.findOne({ classCode })
     } while (result)
     return classCode
 }
 
 export const createClassroom = async (classroom: ClassroomModel) => {
     classroom.classCode = await createClassCode()
-    return await new Classroom(classroom).save()
+    return await new ClassroomSchema(classroom).save()
 }
 
 export const updateClassroom = async (classroom: ClassroomModel) => {
-    return await Classroom.findByIdAndUpdate(classroom._id, classroom)
+    return await ClassroomSchema.findByIdAndUpdate(classroom._id, classroom)
 }
 interface InviteToClassromParams {
     isStudent: boolean,
@@ -89,9 +89,9 @@ export const createInviteLink = (classId: string, isStudent: boolean) => {
     const token = jwt.sign({ classId, isStudent }, secretOrKey, {
         expiresIn: INVITATION_EMAIL_EXPIRED
     })
-    const { CLIENT_HOST, CLIENT_PORT } = process.env
+    const { CLIENT_HOST } = process.env
 
-    return `${CLIENT_HOST}:${CLIENT_PORT}/invite/${token}`
+    return `${CLIENT_HOST}/invite/${token}`
 }
 
 export const verifyInviteToken = (token: string) => {
@@ -107,11 +107,11 @@ export const verifyInviteToken = (token: string) => {
 }
 
 export const getClassroomById = async (classId: string) => {
-    return Classroom.findById(classId).exec()
+    return ClassroomSchema.findById(classId).exec()
 }
 
 export const getClassroomByClassCode = async (classCode: string) => {
-    return Classroom.findOne({ classCode }).exec()
+    return ClassroomSchema.findOne({ classCode }).exec()
 }
 
 export const resetClasscode = async (classroom: ClassroomModel) => {

@@ -54,7 +54,7 @@ export const googleLogin = async (req: Request, res: Response) => {
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
     res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
-    res.redirect(`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`)
+    res.redirect(`${process.env.CLIENT_HOST}`)
 }
 
 export const refreshToken = async (req: Request, res: Response,) => {

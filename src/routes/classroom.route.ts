@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createClassroom, getAllClassroomByUserId, getGradeStructure, getInviteLink, inviteToClassromByEmail, joinClassByLink, joinClassroomByClassCode, removeFromClassroom, resetClassCode } from '@controllers/classroom.controller';
+import { addGradeStructure, createClassroom, getAllClassroomByUserId, getGradeStructure, getInviteLink, inviteToClassromByEmail, joinClassByLink, joinClassroomByClassCode, removeFromClassroom, removeGradeStructure, resetClassCode, updateGradeStructure } from '@controllers/classroom.controller';
 import authenticateJWT from '@middlewares/jwt-auth.mdw';
 import checkPermission from '@middlewares/role-base.mdw';
 import { Role } from '@services/role.service';
@@ -15,7 +15,10 @@ router.post('/join-by-classcode', joinClassroomByClassCode);
 router.get('/:classId/invitation', checkPermission(Role.ANY), getInviteLink);
 router.post('/:classId/reset-classcode', checkPermission(Role.UPPER_ROLE), resetClassCode);
 router.post('/:classId/send-invitation', checkPermission(Role.UPPER_ROLE), inviteToClassromByEmail);
+router.delete('/:classId/users/:userId', checkPermission(Role.UPPER_ROLE), removeFromClassroom);
 router.get('/:classId/grade-structure', checkPermission(Role.ANY), getGradeStructure);
-router.delete('/:classId/:userId', checkPermission(Role.UPPER_ROLE), removeFromClassroom);
+router.post('/:classId/grade-structure', checkPermission(Role.UPPER_ROLE), addGradeStructure);
+router.delete('/:classId/grade-structure', checkPermission(Role.UPPER_ROLE), removeGradeStructure);
+router.put('/:classId/grade-structure', checkPermission(Role.UPPER_ROLE), updateGradeStructure);
 
 export default router;
