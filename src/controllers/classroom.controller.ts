@@ -38,20 +38,21 @@ export const createClassroom = async (req: Request, res: Response) => {
 
 interface InviteToClassromParams {
     isStudent: boolean,
-    classId: string,
     classroomName: string,
     email: string
 }
 
 export const inviteToClassromByEmail = async (req: Request, res: Response) => {
     const payload = req.body as unknown as InviteToClassromParams
-    const result = await classroomService.inviteToClassromByEmail(payload)
+    const classroom = req.body.classroom
+    const result = await classroomService.inviteToClassromByEmail({ ...payload, classId: classroom.id })
     res.json({ isSent: result })
 }
 
 export const getInviteLink = (req: Request, res: Response) => {
-    const { classId, isStudent } = req.query as unknown as { classId: string, isStudent: string }
-    const inviteLink = classroomService.createInviteLink(classId, stringToBoolean(isStudent))
+    const classroom = req.body.classroom
+    const { isStudent } = req.query as unknown as { isStudent: string }
+    const inviteLink = classroomService.createInviteLink(classroom.id, stringToBoolean(isStudent))
     res.json(inviteLink)
 }
 
@@ -71,8 +72,8 @@ export const joinClassByLink = async (req: Request, res: Response) => {
 }
 
 export const resetClassCode = async (req: Request, res: Response) => {
-    const { classId } = req.body as unknown as { classId: string }
-    const result = await classroomService.resetClasscode(classId)
+    const classroom = req.body.classroom
+    const result = await classroomService.resetClasscode(classroom)
     if (result) {
         return res.json(result)
     }
@@ -95,10 +96,12 @@ export const joinClassroomByClassCode = async (req: Request, res: Response) => {
 }
 
 export const removeFromClassroom = async (req: Request, res: Response) => {
-    const { classId, isStudent, userId } = req.body as unknown as { classId: string, isStudent: boolean, userId: string }
-    const classroom = await classroomService.removeFromClassroom(classId, userId, isStudent)
-    if (classroom) {
-        return res.json({ studentsId: classroom.studentsId, teachersId: classroom.teachersId })
+    const { userId } = req.params
+    const { isStudent } = req.body as unknown as { isStudent: boolean }
+    const classroom = req.body.classroom
+    const result = await classroomService.removeFromClassroom(classroom, userId, isStudent)
+    if (result) {
+        return res.json({ studentsId: result.studentsId, teachersId: result.teachersId })
     }
     res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
 }
@@ -129,12 +132,12 @@ export const addGradeStructure = async (req: Request, res: Response) => {
 
         res.json({ ...result, role: Role.UPPER_ROLE })
     } else {
-        const result =await gradeStructureDetailService.createStructureDetail({ 
-            gradeStructureId:gradeStruct.id,
+        const result = await gradeStructureDetailService.createStructureDetail({
+            gradeStructureId: gradeStruct.id,
             title: gradeStructDetail.title,
             description: gradeStructDetail.description,
-            point:gradeStructDetail.point
-        }as unknown as GradeStructureDetailModel)
+            point: gradeStructDetail.point
+        } as unknown as GradeStructureDetailModel)
 
         const updateGrade = await gradeStructureService.updateGradeStructure(classId, result._id)
 
@@ -144,18 +147,18 @@ export const addGradeStructure = async (req: Request, res: Response) => {
 
 }
 
-export const removeGradeStructure=async (req:Request, res:Response)=>{
-    const gradeId=req.body as unknown as GradeStructureDetailModel
+export const removeGradeStructure = async (req: Request, res: Response) => {
+    const gradeId = req.body as unknown as GradeStructureDetailModel
     const classId = req.body.classroom._id
-    const gradeStructId=gradeId.gradeStructureId
-    const grade=await gradeStructureService.deleteGradeStructure(classId, gradeStructId)
-    const result =await gradeStructureDetailService.deleteStructureDetail(gradeStructId)
+    const gradeStructId = gradeId.gradeStructureId
+    const grade = await gradeStructureService.deleteGradeStructure(classId, gradeStructId)
+    const result = await gradeStructureDetailService.deleteStructureDetail(gradeStructId)
     return res.json({ ...result, role: Role.UPPER_ROLE })
-    
+
 }
 
-export const updateGradeStructure= async(req:Request, res:Response)=>{
-    const gradeStructDetail=req.body as unknown as GradeStructureDetailModel
-    const result=await gradeStructureDetailService.updateStructureDetail(gradeStructDetail.gradeStructureId,{title:gradeStructDetail.title,description:gradeStructDetail.description,point:gradeStructDetail.point})
-    return res.json({ ...result})
+export const updateGradeStructure = async (req: Request, res: Response) => {
+    const gradeStructDetail = req.body as unknown as GradeStructureDetailModel
+    const result = await gradeStructureDetailService.updateStructureDetail(gradeStructDetail.gradeStructureId, { title: gradeStructDetail.title, description: gradeStructDetail.description, point: gradeStructDetail.point })
+    return res.json({ ...result })
 }
