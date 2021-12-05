@@ -8,6 +8,10 @@ import { UserModel } from "@models/user.model";
 import { stringToBoolean } from "@shared/functions";
 import { mapRoleToClassrooms, Role } from "@services/role.service";
 import { get } from "lodash";
+import { GradeStructureModel } from "@models/grade-structure.model";
+import { GradeStructureDetailModel } from "@models/grade-structure-detail.model";
+import * as gradeStructureDetailService from "@services/grade-structure-detail.service";
+
 
 export const getAllClassroomByUserId = async (req: Request, res: Response) => {
     const { _id } = req.user as unknown as UserModel
@@ -100,10 +104,58 @@ export const removeFromClassroom = async (req: Request, res: Response) => {
 }
 
 export const getGradeStructure = async (req: Request, res: Response) => {
-    const classId = req.query.classId as string
-    if (classId) {
-        const result = await gradeStructureService.getClassroomGradeStructure(classId)
-        return res.json(get(result, 'gradeStructuresDetails', []))
+    const classroom = req.body.classroom
+    const result = await gradeStructureService.getClassroomGradeStructure(classroom.id)
+    return res.json(get(result, 'gradeStructuresDetails', []))
+}
+
+export const addGradeStructure = async (req: Request, res: Response) => {
+    const gradeStructDetail = req.body as unknown as GradeStructureDetailModel
+    const classId = req.body.classroom._id
+    const gradeStruct = await gradeStructureService.getClassroomGradeStructure(classId)
+    if (gradeStruct == null) {
+        const newGradeStruct = await gradeStructureService.createGradeStructure({
+            classId: classId,
+            gradeStructuresDetails: []
+        })
+        const result = await gradeStructureDetailService.createStructureDetail({
+            gradeStructureId: newGradeStruct.id,
+            title: gradeStructDetail.title,
+            description: gradeStructDetail.description,
+            point: gradeStructDetail.point
+        } as unknown as GradeStructureDetailModel)
+
+        const updateGrade = await gradeStructureService.updateGradeStructure(classId, result._id)
+
+        res.json({ ...result, role: Role.UPPER_ROLE })
+    } else {
+        const result =await gradeStructureDetailService.createStructureDetail({ 
+            gradeStructureId:gradeStruct.id,
+            title: gradeStructDetail.title,
+            description: gradeStructDetail.description,
+            point:gradeStructDetail.point
+        }as unknown as GradeStructureDetailModel)
+
+        const updateGrade = await gradeStructureService.updateGradeStructure(classId, result._id)
+
+        res.json({ ...result, role: Role.UPPER_ROLE })
     }
-    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+
+
+}
+
+export const removeGradeStructure=async (req:Request, res:Response)=>{
+    const gradeId=req.body as unknown as GradeStructureDetailModel
+    const classId = req.body.classroom._id
+    const gradeStructId=gradeId.gradeStructureId
+    const grade=await gradeStructureService.deleteGradeStructure(classId, gradeStructId)
+    const result =await gradeStructureDetailService.deleteStructureDetail(gradeStructId)
+    return res.json({ ...result, role: Role.UPPER_ROLE })
+    
+}
+
+export const updateGradeStructure= async(req:Request, res:Response)=>{
+    const gradeStructDetail=req.body as unknown as GradeStructureDetailModel
+    const result=await gradeStructureDetailService.updateStructureDetail(gradeStructDetail.gradeStructureId,{title:gradeStructDetail.title,description:gradeStructDetail.description,point:gradeStructDetail.point})
+    return res.json({ ...result})
 }
