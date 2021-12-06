@@ -1,20 +1,27 @@
-import * as classroomService from "@services/classroom.service";
-import * as gradeStructureService from "@services/grade-structures.service";
-import { Request, Response } from "express";
 import { ClassroomModel } from "@models/classroom.model";
-import { StatusCodes } from "http-status-codes";
-import { INVITATION_EMAIL_ERROR, UNEXPECTED_ERROR } from "@shared/constants";
+import { GradeStructureDetailModel } from "@models/grade-structure-detail.model";
+import { GradeStructureModel } from "@models/grade-structure.model";
 import { UserModel } from "@models/user.model";
+import * as classroomService from "@services/classroom.service";
+import * as gradeStructureDetailService from "@services/grade-structure-detail.service";
+import * as gradeStructureService from "@services/grade-structures.service";
+import { getUserRoleInClass } from "@services/role.service";
+import { INVITATION_EMAIL_ERROR, SUCCESSFULLY_MESSAGE, UNEXPECTED_ERROR } from "@shared/constants";
 import { stringToBoolean } from "@shared/functions";
-import { mapRoleToClassrooms, Role } from "@services/role.service";
+import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
 
+
 export const getAllClassroomByUserId = async (req: Request, res: Response) => {
-    const { _id } = req.user as unknown as UserModel
-    const classrooms = await classroomService.getClassroomByUserId(_id)
-    const result = {} as { enrolledClassrooms: any, teachingClassrooms: any }
-    result.enrolledClassrooms = mapRoleToClassrooms(_id, classrooms.enrolledClassrooms)
-    result.teachingClassrooms = mapRoleToClassrooms(_id, classrooms.teachingClassrooms)
+    const { _id } = req.body.user as unknown as UserModel
+    const classrooms = await classroomService.getAllByUserIdAndRole(_id)
+    res.json(classrooms)
+}
+
+export const getClassroom = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const result = await classroomService.getClassroomByUserId(classroom._id)
     res.json(result)
 }
 
@@ -22,14 +29,14 @@ export const createClassroom = async (req: Request, res: Response) => {
     const classroom = req.body as unknown as ClassroomModel
     const result = await classroomService.createClassroom({
         name: classroom.name,
-        ownerId: classroom.ownerId,
+        owner: classroom.owner,
         schoolYear: classroom.schoolYear,
-        teachersId: [classroom.ownerId],
-        studentsId: [],
+        teachers: [classroom.owner],
+        students: [],
         description: classroom.description
     } as unknown as ClassroomModel)
 
-    res.json({ ...result, role: Role.OWNER })
+    res.json(result)
 }
 
 interface InviteToClassromParams {
@@ -56,9 +63,10 @@ export const joinClassByLink = async (req: Request, res: Response) => {
     const { token } = req.body as unknown as { token: string }
     const result = classroomService.verifyInviteToken(token)
     if (result) {
-        const user = req.user as UserModel
+        const user = req.body.user as UserModel
         const { classId, isStudent } = result;
-        const newClass = await classroomService.addNewUserToClassroom(user._id, classId, isStudent)
+        const classroom = await classroomService.getClassroomById(classId)
+        const newClass = await classroomService.addNewUserToClassroom(user._id, classroom!, isStudent)
         if (newClass) {
             return res.json({ id: newClass._id })
         }
@@ -78,13 +86,13 @@ export const resetClassCode = async (req: Request, res: Response) => {
 
 export const joinClassroomByClassCode = async (req: Request, res: Response) => {
     const { classCode } = req.body as unknown as { classCode: string }
-    const user = req.user as UserModel
+    const user = req.body.user as UserModel
     const classroom = await classroomService.getClassroomByClassCode(classCode)
     if (classroom) {
         const isUserInClassrom = classroomService.isUserInClassrom(user._id, classroom)
         if (!isUserInClassrom) {
-            const result = await classroomService.addNewUserToClassroom(user._id, classroom._id, true)
-            return res.json({ ...result, role: Role.STUDENT })
+            const result = await classroomService.addNewUserToClassroom(user._id, classroom, true)
+            return res.json(result)
         }
         return res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
     }
@@ -97,13 +105,66 @@ export const removeFromClassroom = async (req: Request, res: Response) => {
     const classroom = req.body.classroom
     const result = await classroomService.removeFromClassroom(classroom, userId, isStudent)
     if (result) {
-        return res.json({ studentsId: result.studentsId, teachersId: result.teachersId })
+        return res.json({ students: result.students, teachers: result.teachers })
     }
     res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
 }
 
+export const getRole = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const user = req.body.user
+    const result = await getUserRoleInClass(user._id, classroom)
+    return res.json(result)
+}
+
 export const getGradeStructure = async (req: Request, res: Response) => {
     const classroom = req.body.classroom
-    const result = await gradeStructureService.getClassroomGradeStructure(classroom.id)
+    const result = await gradeStructureService.getGradeStructure(classroom.id)
     return res.json(get(result, 'gradeStructuresDetails', []))
+}
+
+export const addGradeStructure = async (req: Request, res: Response) => {
+    const gradeStructDetail = req.body as unknown as GradeStructureDetailModel
+    const classroom = req.body.classroom as ClassroomModel
+    let gradeStructureId = classroom.gradeStructure?.toString()
+    const gradeStructure = await gradeStructureService.getGradeStructure(gradeStructureId)
+    if (!gradeStructure) {
+        const newGradeStructure = await gradeStructureService.createGradeStructure({
+            gradeStructuresDetails: []
+        })
+        classroom.gradeStructure = newGradeStructure.id
+        gradeStructureId = newGradeStructure.id
+        await classroomService.updateClassroom(classroom)
+    }
+
+    const payload = {
+        title: gradeStructDetail.title,
+        description: gradeStructDetail.description,
+        point: gradeStructDetail.point
+    }
+    const gradeDetail = await gradeStructureDetailService.createStructureDetail(payload)
+    await gradeStructureService.addNewGradeStructureDetail(gradeStructureId, gradeDetail._id)
+
+    res.json(gradeDetail)
+}
+
+export const removeGradeStructureDetail = async (req: Request, res: Response) => {
+    const gradeDetailId = req.params.gradeDetailId
+    const gradeStructureId = req.body.classroom.gradeStructure!.toString()
+    await gradeStructureService.deleteGradeStructureDetail(gradeStructureId, gradeDetailId)
+    await gradeStructureDetailService.deleteStructureDetail(gradeDetailId)
+    return res.json({ message: SUCCESSFULLY_MESSAGE })
+}
+
+export const updateGradeStructureDetail = async (req: Request, res: Response) => {
+    const gradeDetailId = req.params.gradeDetailId
+    const gradeStructDetailToUpdate = req.body as unknown as GradeStructureDetailModel
+    const result = await gradeStructureDetailService.updateStructureDetail(gradeDetailId, gradeStructDetailToUpdate)
+    return res.json(result)
+}
+
+export const updateGradeStructure = async (req: Request, res: Response) => {
+    const gradeStructureToUpdate = req.body as unknown as GradeStructureModel
+    const result = await gradeStructureService.updateGradeStructure(gradeStructureToUpdate)
+    return res.json(result)
 }

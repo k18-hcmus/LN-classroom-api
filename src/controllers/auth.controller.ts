@@ -7,13 +7,13 @@ import { get } from "lodash";
 import * as userService from "@services/user.service";
 
 export const checkAuthentication = async (req: Request, res: Response) => {
-    const user = req.user as UserModel
+    const user = req.body.user as UserModel
     const { password, ...response } = user.toObject()
     res.json(response)
 }
 
 export const login = async (req: Request, res: Response) => {
-    const user = req.user as UserModel
+    const user = req.body.user as UserModel
     const rememberMe = get(req.body, "rememberMe")
     const { password, ...response } = user.toObject()
 
@@ -32,7 +32,6 @@ export const login = async (req: Request, res: Response) => {
 export const registerUser = async (req: Request, res: Response) => {
     const user = req.body as unknown as UserModel
     const validationResult = await userService.validateNewUser(user)
-    console.log(validationResult)
     if (validationResult) {
         return res.status(StatusCodes.BAD_REQUEST).json(validationResult)
     }
@@ -47,14 +46,14 @@ export const registerUser = async (req: Request, res: Response) => {
 }
 
 export const googleLogin = async (req: Request, res: Response) => {
-    const user = req.user as UserModel
+    const user = req.body.user as UserModel
 
     const accessToken = RefreshTokenService.createNewAccessToken(user.id)
     const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
     res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
-    res.redirect(`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`)
+    res.redirect(`${process.env.CLIENT_HOST}`)
 }
 
 export const refreshToken = async (req: Request, res: Response,) => {

@@ -18,6 +18,6 @@ router.get('/google', googleAuthMdw({
 }))
 
 router.get('/google/success', googleAuthMdw({
-    failureRedirect: `${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`,
+    failureRedirect: `${process.env.CLIENT_HOST}`,
 }), googleLogin);
 export default router;

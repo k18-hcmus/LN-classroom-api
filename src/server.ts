@@ -26,7 +26,7 @@ const { BAD_REQUEST } = StatusCodes;
 mongoose.connect(process.env.MONGO_DB_URI as string).then(() => console.log("Database connected")).catch((err) => console.log('Connection failed:\n', err))
 
 app.use(cors({
-    origin: [`${process.env.CLIENT_HOST}:${process.env.CLIENT_PORT}`],
+    origin: [`${process.env.CLIENT_HOST}`],
     credentials: true
 }))
 app.use(express.json());
