@@ -6,8 +6,6 @@ const GradeStructureDetailSchema: Schema = new Schema(
         title: { type: String, required: true },
         description: { type: String },
         point: { type: Number, required: true },
-        gradeStructureId: { type: mongoose.Types.ObjectId, ref: 'grade-structures', required: true },
-
     },
     {
         timestamps: true

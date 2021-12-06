@@ -15,10 +15,32 @@ export const getAll = async () => {
     return await ClassroomSchema.find().exec()
 }
 
-export const getClassroomByUserId = async (userId: string) => {
+const getClassroomsByUserId = async (filter: any) => {
+    return await ClassroomSchema.find(filter).populate('owner').populate('teachers').populate('students')
+        .populate('gradeStructure').populate({
+            path: 'gradeStructure',
+            populate: {
+                path: 'gradeStructuresDetails',
+                model: 'grade-structure-details'
+            }
+        }).exec()
+}
+
+export const getClassroomByUserId = async (classId: string) => {
+    return await ClassroomSchema.findById(classId).populate('owner').populate('teachers').populate('students')
+        .populate('gradeStructure').populate({
+            path: 'gradeStructure',
+            populate: {
+                path: 'gradeStructuresDetails',
+                model: 'grade-structure-details'
+            }
+        }).exec()
+}
+
+export const getAllByUserIdAndRole = async (userId: string) => {
     const id = stringToObjectId(userId)
-    const enrolledClassrooms = await ClassroomSchema.find({ studentsId: id }).exec()
-    const teachingClassrooms = await ClassroomSchema.find({ teachersId: id }).exec()
+    const enrolledClassrooms = await getClassroomsByUserId({ students: id })
+    const teachingClassrooms = await getClassroomsByUserId({ teachers: id })
 
     return {
         enrolledClassrooms,
@@ -32,9 +54,9 @@ export const removeFromClassroom = async (classroom: ClassroomModel, userId: str
             return null
         }
         if (isStudent) {
-            classroom.studentsId = classroom.studentsId.filter(ids => ids.toString() !== userId)
+            classroom.students = classroom.students.filter(ids => ids.toString() !== userId)
         } else {
-            classroom.teachersId = classroom.teachersId.filter(ids => ids.toString() !== userId)
+            classroom.teachers = classroom.teachers.filter(ids => ids.toString() !== userId)
         }
         return await classroom.save()
     }
@@ -131,9 +153,9 @@ export const addNewUserToClassroom = async (userId: string, classroom: Classroom
         const id = stringToObjectId(userId)
 
         if (isStudent) {
-            classroom.studentsId.push(id)
+            classroom.students.push(id)
         } else {
-            classroom.teachersId.push(id)
+            classroom.teachers.push(id)
         }
         return await classroom.save()
     }
@@ -145,13 +167,13 @@ export const isUserInClassrom = (userId: string, classroom: ClassroomModel) => {
 }
 
 export const isUserStudent = (userId: string, classroom: ClassroomModel) => {
-    return classroom.studentsId.some((studentId) => studentId.toString() === userId.toString())
+    return classroom.students.some((studentId) => studentId.toString() === userId.toString())
 }
 
 export const isUserTeacher = (userId: string, classroom: ClassroomModel) => {
-    return classroom.teachersId.some((teacherId) => teacherId.toString() === userId.toString())
+    return classroom.teachers.some((teacherId) => teacherId.toString() === userId.toString())
 }
 
 export const isUserOwner = (userId: string, classroom: ClassroomModel) => {
-    return classroom.ownerId.toString() === userId.toString()
+    return classroom.owner.toString() === userId.toString()
 }

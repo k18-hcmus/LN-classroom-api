@@ -9,7 +9,7 @@ interface UpdateProfileParams { firstName: string, lastName: string, studentId: 
 
 export const updateProfile = async (req: Request, res: Response) => {
     const { firstName, lastName, studentId } = req.body as unknown as UpdateProfileParams
-    const user = req.user as UserModel
+    const user = req.body.user as UserModel
     const isStudentIdInvalid = await userService.isStudentIdInvalid(user._id, studentId)
     if (isStudentIdInvalid) {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: STUDENT_ID_EXISTED_ERROR })
@@ -25,7 +25,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 export const changePassword = async (req: Request, res: Response) => {
     const { newPassword, oldPassword } = req.body as unknown as { newPassword: string, oldPassword: string }
-    const user = req.user as UserModel
+    const user = req.body.user as UserModel
     const isPasswordValid = userService.comparePassword(user, oldPassword)
     if (isPasswordValid) {
         const encryptPassword = userService.encryptPassword(newPassword)

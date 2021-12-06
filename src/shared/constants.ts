@@ -17,6 +17,7 @@ export const INVITATION_EMAIL_EXPIRED = "7d"
 export const INVITATION_EMAIL_ERROR = "Invite link is invalid or expried!"
 export const UPDATE_USER_FAILED = "Failed to update profile!"
 export const UNEXPECTED_ERROR = "UNEXPECTED ERROR!"
+export const SUCCESSFULLY_MESSAGE = "SUCCESSFULLY!"
 
 export enum VIEWS {
     CONFIRM_EMAIl = 'confirm-email',
