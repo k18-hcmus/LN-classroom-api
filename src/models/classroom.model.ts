@@ -2,10 +2,11 @@ import mongoose from "mongoose"
 
 export type ClassroomModel = mongoose.Document & {
     name: string,
-    ownerId: mongoose.ObjectId,
+    owner: mongoose.ObjectId,
     schoolYear: string,
-    teachersId: mongoose.Types.ObjectId[],
-    studentsId: mongoose.Types.ObjectId[],
+    teachers: mongoose.Types.ObjectId[],
+    students: mongoose.Types.ObjectId[],
     classCode: string,
+    gradeStructure?: mongoose.Types.ObjectId,
     description?: string,
 }

@@ -20,7 +20,7 @@ const authenticateJWT = async (req: Request, res: Response, next: NextFunction) 
             if (!user) {
                 return res.status(StatusCodes.UNAUTHORIZED).send(UNAUTHORIZE_MESSAGE);
             }
-            req.user = user
+            req.body.user = user
 
             return next()
         }

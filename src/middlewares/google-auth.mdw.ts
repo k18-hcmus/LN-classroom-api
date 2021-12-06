@@ -17,8 +17,9 @@ passport.use(new passportGoogle.Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID || "",
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    passReqToCallback: true
 },
-    async function (accessToken, _, profile, done) {
+    async function (req, accessToken, _, profile, done) {
         try {
             const email = get(profile, 'emails[0].value')
             let user = await User.findOne({ email, provider: 'google' }).exec()
@@ -32,6 +33,7 @@ passport.use(new passportGoogle.Strategy({
                     provider: 'google'
                 } as UserModel)
             }
+            req.body.user = user
             return done(null, user);
         } catch (err: any) {
             console.error(err)

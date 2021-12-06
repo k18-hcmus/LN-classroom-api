@@ -11,12 +11,11 @@ import { get } from 'lodash'
 const checkPermission = (role: Role) =>
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const classId = get(req.body, 'classId') || get(req.query, 'classId')
-            console.log(classId)
+            const classId = req.params.classId
             if (classId) {
                 const classroom = await classroomService.getClassroomById(classId)
                 if (classroom) {
-                    const user = req.user as UserModel
+                    const user = req.body.user as UserModel
                     const isPermissionValid = roleService.isRoleSastified(role, user._id, classroom)
                     if (isPermissionValid) {
                         req.body.classroom = classroom

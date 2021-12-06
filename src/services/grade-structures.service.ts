@@ -1,24 +1,33 @@
+import { GradeStructureModel } from "@models/grade-structure.model";
 import gradeStructureSchema from "@schemas/grade-structure.schema";
 
-export const getClassroomGradeStructure = async (classId: string) => {
-    return gradeStructureSchema.findOne({ classId }).populate('gradeStructuresDetails').exec()
+export const getGradeStructure = async (id: string | undefined) => {
+    return gradeStructureSchema.findById(id).populate('gradeStructuresDetails').exec()
 }
 
 export const createGradeStructure = async (payload: any) => {
     return await new gradeStructureSchema(payload).save()
 }
 
-export const updateGradeStructure = async (classId: string, opt: string) => {
-    return await gradeStructureSchema.findOneAndUpdate({ classId }, { "$push": { gradeStructuresDetails: opt } }, {
+export const addNewGradeStructureDetail = async (id: string | undefined, opt: string) => {
+    return await gradeStructureSchema.findByIdAndUpdate(id, { "$push": { gradeStructuresDetails: opt } }, {
         new: true
     }).exec()
 }
 
-export const deleteGradeStructure = async (classId: string, gradeId: string) => {
-    const gradeStructuresDetails = await gradeStructureSchema.findOne({ classId }).exec();
-    const gradeStruct = gradeStructuresDetails!.gradeStructuresDetails
-    const newGradeStruct = gradeStruct!.filter(grades => grades.id.toString() !== gradeId)
-    return await gradeStructureSchema.findOneAndUpdate({ classId }, { gradeStructuresDetails: newGradeStruct }, {
+export const updateGradeStructure = async (gradeStructure: GradeStructureModel) => {
+    return await gradeStructureSchema.findByIdAndUpdate(gradeStructure._id, gradeStructure, {
         new: true
     }).exec()
+}
+
+export const deleteGradeStructureDetail = async (gradeId: string, gradeDetailId: string) => {
+    const gradeStructures = await gradeStructureSchema.findById(gradeId).exec();
+    if (gradeStructures) {
+        const gradeStructuresDetails = gradeStructures.gradeStructuresDetails
+        const newGradeStruct = gradeStructuresDetails!.filter(grades => grades.toString() !== gradeDetailId)
+        return await gradeStructureSchema.findByIdAndUpdate(gradeId, { gradeStructuresDetails: newGradeStruct }, {
+            new: true
+        }).exec()
+    }
 }

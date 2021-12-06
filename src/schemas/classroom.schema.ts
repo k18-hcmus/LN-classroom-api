@@ -4,12 +4,13 @@ import { ClassroomModel } from "@models/classroom.model";
 const ClassroomSchema: Schema = new Schema(
     {
         name: { type: String, required: true },
-        ownerId: { type: mongoose.Types.ObjectId, required: true, ref: 'users' },
+        owner: { type: mongoose.Types.ObjectId, required: true, ref: 'users' },
         schoolYear: { type: String, required: true },
-        teachersId: { type: [{ type: mongoose.Types.ObjectId, ref: 'users' }], required: true },
-        studentsId: { type: [{ type: mongoose.Types.ObjectId, ref: 'users' }], required: true },
+        teachers: { type: [{ type: mongoose.Types.ObjectId, ref: 'users' }], required: true },
+        students: { type: [{ type: mongoose.Types.ObjectId, ref: 'users' }], required: true },
         classCode: { type: String, required: true, index: { unique: true } },
         description: { type: String },
+        gradeStructure: { type: mongoose.Types.ObjectId, ref: 'grade-structures', default: null },
     },
     {
         timestamps: true
