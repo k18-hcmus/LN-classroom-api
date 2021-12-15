@@ -5,7 +5,6 @@ import { Role } from "@services/role.service"
 import { UNEXPECTED_ERROR } from '@shared/constants'
 import { NextFunction, Request, Response } from "express"
 import { StatusCodes } from 'http-status-codes'
-import { get } from 'lodash'
 
 
 const checkPermission = (role: Role) =>
@@ -21,15 +20,15 @@ const checkPermission = (role: Role) =>
                         req.body.classroom = classroom
                         return next()
                     }
-                    return res.status(StatusCodes.BAD_REQUEST).send(UNEXPECTED_ERROR);
+                    return res.status(StatusCodes.FORBIDDEN).send(UNEXPECTED_ERROR);
                 }
-                return res.status(StatusCodes.BAD_REQUEST).send(UNEXPECTED_ERROR);
+                return res.status(StatusCodes.FORBIDDEN).send(UNEXPECTED_ERROR);
             }
-            return res.status(StatusCodes.BAD_REQUEST).send(UNEXPECTED_ERROR);
+            return res.status(StatusCodes.FORBIDDEN).send(UNEXPECTED_ERROR);
 
         } catch (err) {
             console.error(err)
-            return res.status(StatusCodes.BAD_REQUEST).send(UNEXPECTED_ERROR);
+            return res.status(StatusCodes.FORBIDDEN).send(UNEXPECTED_ERROR);
         }
     }
 

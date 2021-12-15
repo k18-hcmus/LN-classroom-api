@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { login, checkAuthentication, refreshToken, googleLogin, registerUser, logout } from '@controllers/auth.controller';
+import { checkAuthentication, googleLogin, login, logout, refreshToken, registerUser } from '@controllers/auth.controller';
+import googleAuth from '@middlewares/google-auth.mdw';
 import jwtAuthMdw from '@middlewares/jwt-auth.mdw';
 import localAuthMdw from '@middlewares/local-auth.mdw';
-import googleAuthMdw from '@middlewares/google-auth.mdw';
+import { Router } from 'express';
 
 // Auth-route
 const router = Router();
@@ -12,12 +12,5 @@ router.post('/login', localAuthMdw, login);
 router.post('/refresh-token', refreshToken);
 router.post('/register', registerUser);
 router.post('/logout', logout);
-router.get('/google', googleAuthMdw({
-    scope: ["profile", "email"],
-    accessType: "offline",
-}))
-
-router.get('/google/success', googleAuthMdw({
-    failureRedirect: `${process.env.CLIENT_HOST}`,
-}), googleLogin);
+router.post('/google', googleAuth, googleLogin)
 export default router;
