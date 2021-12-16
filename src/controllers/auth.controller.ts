@@ -25,7 +25,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
-    res.clearCookie(JWT_KEY)
+    res.clearCookie(JWT_KEY, { httpOnly: true, sameSite: 'none', secure: isHttps })
     res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: isHttps })
     res.json(response)
 }
@@ -52,7 +52,7 @@ export const googleLogin = async (req: Request, res: Response) => {
     const accessToken = RefreshTokenService.createNewAccessToken(user.id)
     const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
-    res.clearCookie(JWT_KEY)
+    res.clearCookie(JWT_KEY, { httpOnly: true, sameSite: 'none', secure: isHttps })
     res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: isHttps })
     const { password, ...response } = user.toObject()
     res.json(response)
@@ -83,6 +83,7 @@ export const refreshToken = async (req: Request, res: Response,) => {
 }
 
 export const logout = async (req: Request, res: Response) => {
-    res.clearCookie(JWT_KEY)
+    const isHttps = req.protocol === 'https'
+    res.clearCookie(JWT_KEY, { httpOnly: true, sameSite: 'none', secure: isHttps })
     res.status(StatusCodes.OK).send("OK")
 }
