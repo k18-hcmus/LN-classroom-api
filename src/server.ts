@@ -24,7 +24,7 @@ const { BAD_REQUEST } = StatusCodes;
 
 // Connect to mongoose
 mongoose.connect(process.env.MONGO_DB_URI as string).then(() => console.log("Database connected")).catch((err) => console.log('Connection failed:\n', err))
-
+app.set('trust proxy', 1)
 app.use(cors({
     origin: function (origin, callback) {
         callback(null, origin)
@@ -36,9 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Show routes called in console during development
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-}
+app.use(morgan('dev'));
 
 app.use(helmet());
 app.use(passport.initialize());

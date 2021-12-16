@@ -23,3 +23,5 @@ export enum VIEWS {
     CONFIRM_EMAIl = 'confirm-email',
     INVITATION = 'invitation'
 }
+
+export const DEFAULT_URL = process.env.CLIENT_HOST || 'http://localhost:3000'

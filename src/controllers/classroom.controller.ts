@@ -6,7 +6,7 @@ import * as classroomService from "@services/classroom.service";
 import * as gradeStructureDetailService from "@services/grade-structure-detail.service";
 import * as gradeStructureService from "@services/grade-structures.service";
 import { getUserRoleInClass } from "@services/role.service";
-import { INVITATION_EMAIL_ERROR, SUCCESSFULLY_MESSAGE, UNEXPECTED_ERROR } from "@shared/constants";
+import { DEFAULT_URL, INVITATION_EMAIL_ERROR, SUCCESSFULLY_MESSAGE, UNEXPECTED_ERROR } from "@shared/constants";
 import { stringToBoolean } from "@shared/functions";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
@@ -48,14 +48,16 @@ interface InviteToClassromParams {
 export const inviteToClassromByEmail = async (req: Request, res: Response) => {
     const payload = req.body as unknown as InviteToClassromParams
     const classroom = req.body.classroom
-    const result = await classroomService.inviteToClassromByEmail({ ...payload, classId: classroom.id })
+    const url = req.get('origin') || DEFAULT_URL
+    const result = await classroomService.inviteToClassromByEmail({ ...payload, classId: classroom.id }, url)
     res.json({ isSent: result })
 }
 
 export const getInviteLink = (req: Request, res: Response) => {
     const classroom = req.body.classroom
     const { isStudent } = req.query as unknown as { isStudent: string }
-    const inviteLink = classroomService.createInviteLink(classroom.id, stringToBoolean(isStudent))
+    const url = req.get('origin') || DEFAULT_URL
+    const inviteLink = classroomService.createInviteLink(url, classroom.id, stringToBoolean(isStudent))
     res.json(inviteLink)
 }
 
