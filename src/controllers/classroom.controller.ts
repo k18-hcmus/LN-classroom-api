@@ -48,14 +48,16 @@ interface InviteToClassromParams {
 export const inviteToClassromByEmail = async (req: Request, res: Response) => {
     const payload = req.body as unknown as InviteToClassromParams
     const classroom = req.body.classroom
-    const result = await classroomService.inviteToClassromByEmail({ ...payload, classId: classroom.id })
+    const url = req.headers.host || 'http://locahost:3000'
+    const result = await classroomService.inviteToClassromByEmail({ ...payload, classId: classroom.id }, url)
     res.json({ isSent: result })
 }
 
 export const getInviteLink = (req: Request, res: Response) => {
     const classroom = req.body.classroom
     const { isStudent } = req.query as unknown as { isStudent: string }
-    const inviteLink = classroomService.createInviteLink(classroom.id, stringToBoolean(isStudent))
+    const url = req.headers.host || 'http://locahost:3000'
+    const inviteLink = classroomService.createInviteLink(url, classroom.id, stringToBoolean(isStudent))
     res.json(inviteLink)
 }
 
