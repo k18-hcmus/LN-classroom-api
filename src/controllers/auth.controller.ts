@@ -16,6 +16,7 @@ export const login = async (req: Request, res: Response) => {
     const user = req.body.user as UserModel
     const rememberMe = get(req.body, "rememberMe")
     const { password, ...response } = user.toObject()
+    const isHttps = req.protocol === 'https'
 
     const accessToken = RefreshTokenService.createNewAccessToken(user.id)
     let refreshToken = null
@@ -25,7 +26,7 @@ export const login = async (req: Request, res: Response) => {
 
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
+    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, secure: isHttps })
     res.json(response)
 }
 
@@ -47,12 +48,12 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const googleLogin = async (req: Request, res: Response) => {
     const user = req.body.user as UserModel
-
+    const isHttps = req.protocol === 'https'
     const accessToken = RefreshTokenService.createNewAccessToken(user.id)
     const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
+    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, secure: isHttps })
     const { password, ...response } = user.toObject()
     res.json(response)
 }
