@@ -1,10 +1,10 @@
 import { UserModel } from "@models/user.model";
 import * as RefreshTokenService from "@services/refresh-token.service";
+import * as userService from "@services/user.service";
 import { JWT_KEY, REFRESH_TOKEN_MESSAGE, UNAUTHORIZE_MESSAGE } from "@shared/constants";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
-import * as userService from "@services/user.service";
 
 export const checkAuthentication = async (req: Request, res: Response) => {
     const user = req.body.user as UserModel
@@ -14,7 +14,7 @@ export const checkAuthentication = async (req: Request, res: Response) => {
 
 const cookieOptions = (isHttps: boolean) => {
     return {
-        httpOnly: true, secure: isHttps, sameSite: !isHttps
+        httpOnly: true, secure: isHttps, sameSite: isHttps ? "none" as const : "lax" as const
     }
 }
 
