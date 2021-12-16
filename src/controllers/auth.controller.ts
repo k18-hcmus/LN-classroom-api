@@ -32,7 +32,6 @@ export const login = async (req: Request, res: Response) => {
 
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY, cookieOptions(isHttps))
-    console.log(jwtPayload)
     res.cookie(JWT_KEY, jwtPayload, cookieOptions(isHttps))
     res.json(response)
 }
