@@ -5,24 +5,27 @@
 import fs from 'fs-extra';
 import Logger from 'jet-logger';
 import childProcess from 'child_process';
+import path from 'path';
 
 // Setup logger
 const logger = new Logger();
 logger.timestamp = false;
 
-
+function getPath(loc: string) : string {
+    return path.resolve(__dirname, loc)
+}
 
 
 (async () => {
     try {
         // Remove current build
-        await remove('./dist/');
+        await remove(getPath('./dist/'));
         // Copy front-end files
-        await copy('./src/public', './dist/public');
+        await copy(getPath('./src/public'), getPath('./dist/public'));
         // Copy production env file
-        await copy('./src/pre-start/env/production.env', './dist/pre-start/env/production.env');
+        await copy(getPath('./src/pre-start/env/production.env'), getPath('./dist/pre-start/env/production.env'));
         // Copy back-end files
-        await exec('tsc --build tsconfig.prod.json', './')
+        await exec('tsc --build tsconfig.prod.json', getPath('./'))
     } catch (err) {
         logger.err(err);
     }
