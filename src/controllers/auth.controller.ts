@@ -26,7 +26,7 @@ export const login = async (req: Request, res: Response) => {
 
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, secure: true })
+    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: isHttps })
     res.json(response)
 }
 
@@ -53,7 +53,7 @@ export const googleLogin = async (req: Request, res: Response) => {
     const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
     res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, secure: true })
+    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true, sameSite: 'none', secure: isHttps })
     const { password, ...response } = user.toObject()
     res.json(response)
 }
