@@ -14,7 +14,7 @@ export const checkAuthentication = async (req: Request, res: Response) => {
 
 const cookieOptions = (isHttps: boolean) => {
     return {
-        httpOnly: true, secure: isHttps
+        httpOnly: true, secure: isHttps, sameSite: !isHttps
     }
 }
 
