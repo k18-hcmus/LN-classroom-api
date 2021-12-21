@@ -10,11 +10,11 @@ interface UpdateProfileParams { firstName: string, lastName: string, studentId: 
 export const updateProfile = async (req: Request, res: Response) => {
     const { firstName, lastName, studentId } = req.body as unknown as UpdateProfileParams
     const user = req.body.user as UserModel
-    const isStudentIdInvalid = await userService.isStudentIdInvalid(user._id, studentId)
-    if (isStudentIdInvalid) {
+    const isStudentIdInvalid = await userService.isStudentIdInvalid(user, studentId)
+    if (!isStudentIdInvalid) {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: STUDENT_ID_EXISTED_ERROR })
     }
-    const result = await userService.updateUser(user._id, { firstName, lastName, studentId })
+    const result = await userService.updateUser(user._id, { firstName, lastName, studentId, hasInputStudentId: true })
     if (result) {
         const { password, ...response } = result.toObject()
         return res.json(response)

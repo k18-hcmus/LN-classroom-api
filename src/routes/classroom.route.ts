@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import {
-    addGradeStructure, createClassroom, getAllClassroomByUserId, getClassroom,
-    getGradeStructure, getInviteLink, getRole, inviteToClassromByEmail, joinClassByLink,
+    addGradeStructure, appendListStudent, createClassroom, getAllClassroomByUserId, getClassroom,
+    getGradeBoard,
+    getGradeStructure, getInviteLink, getRole, getStudentGradeBoard, inviteToClassromByEmail, joinClassByLink,
     joinClassroomByClassCode, removeFromClassroom, removeGradeStructureDetail,
-    resetClassCode, updateGradeStructure, updateGradeStructureDetail
+    resetClassCode, updateGradeList, updateGradeStructure, updateGradeStructureDetail, updateStudentPoint
 } from '@controllers/classroom.controller';
 import authenticateJWT from '@middlewares/jwt-auth.mdw';
 import checkPermission from '@middlewares/role-base.mdw';
@@ -27,6 +28,11 @@ router.delete('/:classId/grade-structure/:gradeDetailId', checkPermission(Role.U
 router.put('/:classId/grade-structure/:gradeDetailId', checkPermission(Role.UPPER_ROLE), updateGradeStructureDetail);
 router.put('/:classId/grade-structure', checkPermission(Role.UPPER_ROLE), updateGradeStructure);
 router.get('/:classId/role', checkPermission(Role.ANY), getRole);
+router.post('/:classId/grade-board/append-list', checkPermission(Role.OWNER), appendListStudent);
+router.post('/:classId/grade-board/:gradeDetailId', checkPermission(Role.UPPER_ROLE), updateGradeList);
+router.patch('/:classId/grade-board/:gradeDetailId', checkPermission(Role.UPPER_ROLE), updateStudentPoint);
+router.get('/:classId/grade-board/:studentId', checkPermission(Role.ANY), getStudentGradeBoard);
+router.get('/:classId/grade-board', checkPermission(Role.UPPER_ROLE), getGradeBoard);
 router.get('/:classId', checkPermission(Role.ANY), getClassroom);
 
 

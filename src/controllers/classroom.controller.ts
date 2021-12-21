@@ -5,12 +5,14 @@ import { UserModel } from "@models/user.model";
 import * as classroomService from "@services/classroom.service";
 import * as gradeStructureDetailService from "@services/grade-structure-detail.service";
 import * as gradeStructureService from "@services/grade-structures.service";
+import * as gradeBoardService from "@services/grade-board.service";
 import { getUserRoleInClass } from "@services/role.service";
 import { DEFAULT_URL, INVITATION_EMAIL_ERROR, SUCCESSFULLY_MESSAGE, UNEXPECTED_ERROR } from "@shared/constants";
 import { stringToBoolean } from "@shared/functions";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
+import { GradeBoardModel } from "@models/grade-board.model";
 
 
 export const getAllClassroomByUserId = async (req: Request, res: Response) => {
@@ -169,4 +171,62 @@ export const updateGradeStructure = async (req: Request, res: Response) => {
     const gradeStructureToUpdate = req.body as unknown as GradeStructureModel
     const result = await gradeStructureService.updateGradeStructure(gradeStructureToUpdate)
     return res.json(result)
+}
+
+export const appendListStudent = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const { data } = req.body as unknown as { data: GradeBoardModel[] }
+    const result = await gradeBoardService.appendStudentList(data, classroom.id)
+    if (result) {
+        return res.json(result)
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+export const getGradeBoard = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const result = await gradeBoardService.getGradeBoard(classroom.id)
+    if (result) {
+        return res.json(result)
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+export const getStudentGradeBoard = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const studentId = req.params.studentId
+    const result = await gradeBoardService.getStudentGradeBoard(studentId, classroom.id)
+    if (result) {
+        return res.json(result)
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+interface GradeListPayload {
+    point: number,
+    studentId: string,
+}
+
+export const updateGradeList = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const gradeDetailId = req.params.gradeDetailId
+
+    const { data } = req.body as unknown as { data: GradeListPayload[] }
+    const result = await gradeBoardService.updateGradeList(data, classroom.id, gradeDetailId)
+    if (result) {
+        return res.json(result)
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
+}
+
+export const updateStudentPoint = async (req: Request, res: Response) => {
+    const classroom = req.body.classroom
+    const gradeDetailId = req.params.gradeDetailId
+
+    const { data } = req.body as unknown as { data: { point: number, studentId: string } }
+    const result = await gradeBoardService.updateStudentPoint(classroom.id, data.studentId, gradeDetailId, data.point)
+    if (result) {
+        return res.json(result)
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
 }
