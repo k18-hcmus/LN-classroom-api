@@ -1,6 +1,6 @@
 import { UserDocument, UserModel } from "@models/user.model";
 import * as userService from "@services/user.service";
-import { STUDENT_ID_EXISTED_ERROR, UPDATE_USER_FAILED } from "@shared/constants";
+import { NO_HAVE_STUDENT, STUDENT_ID_EXISTED_ERROR, UNEXPECTED_ERROR, UPDATE_USER_FAILED } from "@shared/constants";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
@@ -44,6 +44,15 @@ export const getUserById = async (req: Request, res: Response) => {
         const { _id, firstName, lastName, studentId, email, username } = objectUser
         return res.json({ _id, firstName, lastName, studentId, email, username })
     }
-    res.status(StatusCodes.BAD_REQUEST).json({ message: UPDATE_USER_FAILED })
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
 
+}
+
+export const getUserByStudentId = async (req: Request, res: Response) => {
+    const studentId = get(req.params, "studentId")
+    const student = await userService.getStudentByStudentId(studentId)
+    if (student) {
+        return res.json(student)
+    }
+    res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR })
 }
