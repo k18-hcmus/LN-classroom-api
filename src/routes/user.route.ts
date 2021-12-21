@@ -1,5 +1,5 @@
 import authenticateJWT from '@middlewares/jwt-auth.mdw';
-import { changePassword, getUserById, updateProfile } from '@controllers/user.controller';
+import { changePassword, getUserById, getUserByStudentId, updateProfile } from '@controllers/user.controller';
 import { Router } from 'express';
 
 
@@ -87,6 +87,7 @@ router.use(authenticateJWT)
  */
 
 router.patch('/', updateProfile);
+router.get("/students/:studentId", getUserByStudentId)
 router.post('/change-password', changePassword);
 router.get('/:id', getUserById);
 

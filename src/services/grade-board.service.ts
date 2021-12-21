@@ -51,7 +51,24 @@ export const getStudentGradeBoard = (studentId: string, classId: string) => {
 }
 
 export const updateStudentPoint = (classId: string, studentId: string, gradeDetailId: string, point: number) => {
-    return gradeBoardSchema.updateOne({ classId, studentId, "grade.gradeStructureDetail": stringToObjectId(gradeDetailId) },
-        { $set: { "grade.$[elem].point": point } },
-        { arrayFilters: [{ "elem.gradeStructureDetail": stringToObjectId(gradeDetailId) }] }).lean().exec()
+    return gradeBoardSchema.bulkWrite(
+        [
+            {
+                updateOne: {
+                    filter: {
+                        studentId: studentId, classId,
+                        "grade.gradeStructureDetail": { $ne: stringToObjectId(gradeDetailId) }
+                    },
+                    update: { $addToSet: { grade: { gradeStructureDetail: stringToObjectId(gradeDetailId), point } } },
+                }
+            },
+            {
+                updateOne: {
+                    filter: { studentId: studentId, classId },
+                    update: { $set: { "grade.$[elem].point": point  } },
+                    arrayFilters: [{ "elem.gradeStructureDetail": stringToObjectId(gradeDetailId), }],
+                }
+            }
+        ]
+    )
 }

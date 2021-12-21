@@ -49,3 +49,11 @@ export const isStudentIdInvalid = async (user: UserModel, studentId: string) => 
 export const comparePassword = (user: UserModel, password: string) => {
     return bcrypt.compareSync(password, user.password)
 }
+
+export const getStudentByStudentId = async (studentId: string) => {
+    const result = await User.findOne({ studentId: studentId }).exec()
+    if (result) {
+        return result
+    }
+    return null
+}
