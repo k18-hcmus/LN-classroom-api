@@ -6,6 +6,7 @@ const GradeStructureDetailSchema: Schema = new Schema(
         title: { type: String, required: true },
         description: { type: String },
         point: { type: Number, required: true },
+        isFinalized: { type: Boolean, default: false }
     },
     {
         timestamps: true
