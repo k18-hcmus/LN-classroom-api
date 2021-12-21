@@ -38,12 +38,12 @@ export const validateNewUser = async (user: UserModel) => {
     return null
 }
 
-export const isStudentIdInvalid = async (userId: string, studentId: string) => {
+export const isStudentIdInvalid = async (user: UserModel, studentId: string) => {
     const result = await User.findOne({ studentId: studentId }).exec()
     if (result) {
-        return result._id.toString() === userId
+        return (result._id.toString() === user.id && result.studentId === studentId && result.hasInputStudentId)
     }
-    return null
+    return !user.hasInputStudentId
 }
 
 export const comparePassword = (user: UserModel, password: string) => {

@@ -88,10 +88,10 @@ interface InviteToClassromParams {
     email: string
 }
 
-export const inviteToClassromByEmail = async (payload: InviteToClassromParams) => {
+export const inviteToClassromByEmail = async (payload: InviteToClassromParams, url: string) => {
     try {
         const { isStudent, classId, classroomName, email } = payload
-        const inviteLink = createInviteLink(classId, isStudent);
+        const inviteLink = createInviteLink(url, classId, isStudent);
         const data = {
             classroomName,
             role: isStudent ? 'Student' : 'Teacher',
@@ -107,13 +107,12 @@ export const inviteToClassromByEmail = async (payload: InviteToClassromParams) =
 
 }
 
-export const createInviteLink = (classId: string, isStudent: boolean) => {
+export const createInviteLink = (url: string, classId: string, isStudent: boolean) => {
     const token = jwt.sign({ classId, isStudent }, secretOrKey, {
         expiresIn: INVITATION_EMAIL_EXPIRED
     })
-    const { CLIENT_HOST } = process.env
 
-    return `${CLIENT_HOST}/invite/${token}`
+    return `${url}/invite/${token}`
 }
 
 export const verifyInviteToken = (token: string) => {

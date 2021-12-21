@@ -8,7 +8,8 @@ export type UserModel = mongoose.Document & {
     email: string,
     isActive?: boolean,
     provider: string,
-    studentId?: string
+    studentId?: string,
+    hasInputStudentId: boolean
 }
 
 export interface UserDocument extends UserModel {

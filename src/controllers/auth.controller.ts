@@ -1,10 +1,10 @@
 import { UserModel } from "@models/user.model";
 import * as RefreshTokenService from "@services/refresh-token.service";
+import * as userService from "@services/user.service";
 import { JWT_KEY, REFRESH_TOKEN_MESSAGE, UNAUTHORIZE_MESSAGE } from "@shared/constants";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
-import * as userService from "@services/user.service";
 
 export const checkAuthentication = async (req: Request, res: Response) => {
     const user = req.body.user as UserModel
@@ -12,10 +12,17 @@ export const checkAuthentication = async (req: Request, res: Response) => {
     res.json(response)
 }
 
+const cookieOptions = (isHttps: boolean) => {
+    return {
+        httpOnly: true, secure: isHttps, sameSite: isHttps ? "none" as const : "lax" as const
+    }
+}
+
 export const login = async (req: Request, res: Response) => {
     const user = req.body.user as UserModel
     const rememberMe = get(req.body, "rememberMe")
     const { password, ...response } = user.toObject()
+    const isHttps = req.protocol === 'https'
 
     const accessToken = RefreshTokenService.createNewAccessToken(user.id)
     let refreshToken = null
@@ -24,8 +31,8 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
-    res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
+    res.clearCookie(JWT_KEY, cookieOptions(isHttps))
+    res.cookie(JWT_KEY, jwtPayload, cookieOptions(isHttps))
     res.json(response)
 }
 
@@ -47,13 +54,14 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const googleLogin = async (req: Request, res: Response) => {
     const user = req.body.user as UserModel
-
+    const isHttps = req.protocol === 'https'
     const accessToken = RefreshTokenService.createNewAccessToken(user.id)
     const refreshToken = await RefreshTokenService.createNewRefreshToken(user.id)
     const jwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
-    res.clearCookie(JWT_KEY)
-    res.cookie(JWT_KEY, jwtPayload, { httpOnly: true })
-    res.redirect(`${process.env.CLIENT_HOST}`)
+    res.clearCookie(JWT_KEY, cookieOptions(isHttps))
+    res.cookie(JWT_KEY, jwtPayload, cookieOptions(isHttps))
+    const { password, ...response } = user.toObject()
+    res.json(response)
 }
 
 export const refreshToken = async (req: Request, res: Response,) => {
@@ -65,9 +73,10 @@ export const refreshToken = async (req: Request, res: Response,) => {
             if (tokens) {
                 const { accessToken, refreshToken } = tokens
                 const newJwtPayload = RefreshTokenService.prepareCookiesPayload(accessToken, refreshToken)
+                const isHttps = req.protocol === 'https'
 
-                res.clearCookie(JWT_KEY)
-                res.cookie(JWT_KEY, newJwtPayload, { httpOnly: true })
+                res.clearCookie(JWT_KEY, cookieOptions(isHttps))
+                res.cookie(JWT_KEY, newJwtPayload, cookieOptions(isHttps))
                 return res.json({ message: REFRESH_TOKEN_MESSAGE })
             }
             return res.status(StatusCodes.UNAUTHORIZED).send(UNAUTHORIZE_MESSAGE);
@@ -81,6 +90,7 @@ export const refreshToken = async (req: Request, res: Response,) => {
 }
 
 export const logout = async (req: Request, res: Response) => {
-    res.clearCookie(JWT_KEY)
+    const isHttps = req.protocol === 'https'
+    res.clearCookie(JWT_KEY, cookieOptions(isHttps))
     res.status(StatusCodes.OK).send("OK")
 }
