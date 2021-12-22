@@ -50,7 +50,6 @@ const UserSchema: Schema = new Schema(
     studentId: {
       type: String,
       validate: [isStudentId, "Student Id can only contain 8 digits!"],
-      index: { unique: true },
     },
     hasInputStudentId: { type: Boolean, default: false },
   },

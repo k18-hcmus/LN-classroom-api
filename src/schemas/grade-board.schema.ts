@@ -19,7 +19,6 @@ const GradeStructureSchema: Schema = new Schema(
         gradeStructureDetail: {
           type: mongoose.Types.ObjectId,
           ref: gradeStructureDetailSchema,
-          index: { unique: true },
         },
         point: { type: Number },
       },
