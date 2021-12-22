@@ -1,5 +1,5 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 export type GradeStructureModel = mongoose.Document & {
-    gradeStructuresDetails: mongoose.Types.ObjectId[]
-}
+  gradeStructuresDetails: mongoose.Types.ObjectId[];
+};

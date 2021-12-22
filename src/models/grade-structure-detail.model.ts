@@ -1,8 +1,8 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 export type GradeStructureDetailModel = mongoose.Document & {
-    title: string,
-    description: string,
-    point: number,
-    isFinalized: boolean
-}
+  title: string;
+  description: string;
+  point: number;
+  isFinalized: boolean;
+};

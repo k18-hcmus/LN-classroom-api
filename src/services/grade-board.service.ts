@@ -3,72 +3,111 @@ import gradeBoardSchema from "@schemas/grade-board.schema";
 import { stringToObjectId } from "@shared/functions";
 
 export const appendStudentList = (data: GradeBoardModel[], classId: string) => {
-    return gradeBoardSchema.bulkWrite(
-        data.map((datum) => ({
-            updateOne: {
-                filter: { studentId: datum.studentId, classId },
-                update: { $set: datum },
-                upsert: true
-            }
-        })), { ordered: false })
-}
+  return gradeBoardSchema.bulkWrite(
+    data.map((datum) => ({
+      updateOne: {
+        filter: { studentId: datum.studentId, classId },
+        update: { $set: datum },
+        upsert: true,
+      },
+    })),
+    { ordered: false }
+  );
+};
 
 const getQueries = (data: any[], classId: string, gradeDetailId: string) => {
-    const result: any[] = []
-    for (const datum of data) {
-        result.push(
-            {
-                updateOne: {
-                    filter: {
-                        studentId: datum.studentId, classId,
-                        "grade.gradeStructureDetail": { $ne: stringToObjectId(gradeDetailId) }
-                    },
-                    update: { $addToSet: { grade: { gradeStructureDetail: stringToObjectId(gradeDetailId), point: parseFloat(datum.point) } } },
-                }
-            })
-        result.push({
-            updateOne: {
-                filter: { studentId: datum.studentId, classId },
-                update: { $set: { "grade.$[elem]": { gradeStructureDetail: stringToObjectId(gradeDetailId), point: parseFloat(datum.point) } } },
-                arrayFilters: [{ "elem.gradeStructureDetail": stringToObjectId(gradeDetailId), }],
-            }
-        })
-    }
+  const result: any[] = [];
+  for (const datum of data) {
+    result.push({
+      updateOne: {
+        filter: {
+          studentId: datum.studentId,
+          classId,
+          "grade.gradeStructureDetail": {
+            $ne: stringToObjectId(gradeDetailId),
+          },
+        },
+        update: {
+          $addToSet: {
+            grade: {
+              gradeStructureDetail: stringToObjectId(gradeDetailId),
+              point: parseFloat(datum.point),
+            },
+          },
+        },
+      },
+    });
+    result.push({
+      updateOne: {
+        filter: { studentId: datum.studentId, classId },
+        update: {
+          $set: {
+            "grade.$[elem]": {
+              gradeStructureDetail: stringToObjectId(gradeDetailId),
+              point: parseFloat(datum.point),
+            },
+          },
+        },
+        arrayFilters: [
+          { "elem.gradeStructureDetail": stringToObjectId(gradeDetailId) },
+        ],
+      },
+    });
+  }
 
-    return result
-}
+  return result;
+};
 
-export const updateGradeList = (data: any[], classId: string, gradeDetailId: string) => {
-    return gradeBoardSchema.bulkWrite(getQueries(data, classId, gradeDetailId))
-}
+export const updateGradeList = (
+  data: any[],
+  classId: string,
+  gradeDetailId: string
+) => {
+  return gradeBoardSchema.bulkWrite(getQueries(data, classId, gradeDetailId));
+};
 
 export const getGradeBoard = (classId: string) => {
-    return gradeBoardSchema.find({ classId }).lean().exec()
-}
+  return gradeBoardSchema.find({ classId }).lean().exec();
+};
 
 export const getStudentGradeBoard = (studentId: string, classId: string) => {
-    return gradeBoardSchema.findOne({ studentId, classId }).lean().exec()
-}
+  return gradeBoardSchema.findOne({ studentId, classId }).lean().exec();
+};
 
-export const updateStudentPoint = (classId: string, studentId: string, gradeDetailId: string, point: number) => {
-    return gradeBoardSchema.bulkWrite(
-        [
-            {
-                updateOne: {
-                    filter: {
-                        studentId: studentId, classId,
-                        "grade.gradeStructureDetail": { $ne: stringToObjectId(gradeDetailId) }
-                    },
-                    update: { $addToSet: { grade: { gradeStructureDetail: stringToObjectId(gradeDetailId), point } } },
-                }
+export const updateStudentPoint = (
+  classId: string,
+  studentId: string,
+  gradeDetailId: string,
+  point: number
+) => {
+  return gradeBoardSchema.bulkWrite([
+    {
+      updateOne: {
+        filter: {
+          studentId: studentId,
+          classId,
+          "grade.gradeStructureDetail": {
+            $ne: stringToObjectId(gradeDetailId),
+          },
+        },
+        update: {
+          $addToSet: {
+            grade: {
+              gradeStructureDetail: stringToObjectId(gradeDetailId),
+              point,
             },
-            {
-                updateOne: {
-                    filter: { studentId: studentId, classId },
-                    update: { $set: { "grade.$[elem].point": point  } },
-                    arrayFilters: [{ "elem.gradeStructureDetail": stringToObjectId(gradeDetailId), }],
-                }
-            }
-        ]
-    )
-}
+          },
+        },
+      },
+    },
+    {
+      updateOne: {
+        filter: { studentId: studentId, classId },
+        update: { $set: { "grade.$[elem].point": point } },
+        arrayFilters: [
+          { "elem.gradeStructureDetail": stringToObjectId(gradeDetailId) },
+        ],
+      },
+    },
+  ]);
+};
