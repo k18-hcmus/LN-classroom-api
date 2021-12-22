@@ -1,6 +1,6 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 export type RefreshTokenModel = mongoose.Document & {
-    token: string,
-    userId: mongoose.Types.ObjectId
-}
+  token: string;
+  userId: mongoose.Types.ObjectId;
+};
