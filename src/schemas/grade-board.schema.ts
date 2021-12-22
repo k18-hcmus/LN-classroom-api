@@ -5,13 +5,13 @@ import { isStudentId } from "./user.schema";
 
 const GradeStructureSchema: Schema = new Schema(
     {
-        studentId: { type: String, validate: [isStudentId, 'Student Id can only contain 8 digits!'], index: { unique: true }, require: true },
+        studentId: { type: String, validate: [isStudentId, 'Student Id can only contain 8 digits!'], require: true },
         classId: { type: mongoose.Types.ObjectId, ref: 'classrooms' },
         fullName: { type: String, require: true },
         grade:
             [{
                 _id: false,
-                gradeStructureDetail: { type: mongoose.Types.ObjectId, ref: gradeStructureDetailSchema, index: { unique: true } },
+                gradeStructureDetail: { type: mongoose.Types.ObjectId, ref: gradeStructureDetailSchema },
                 point: { type: Number }
             }]
     },

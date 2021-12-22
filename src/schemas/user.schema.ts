@@ -29,7 +29,7 @@ const UserSchema: Schema = new Schema(
         password: { type: String, required: true, validate: [passwordValidation, 'Password must have at least 6 characters!'] },
         isActive: { type: Boolean, default: false },
         provider: { type: String, default: 'local' },
-        studentId: { type: String, validate: [isStudentId, 'Student Id can only contain 8 digits!'], index: { unique: true } },
+        studentId: { type: String, validate: [isStudentId, 'Student Id can only contain 8 digits!'] },
         hasInputStudentId: { type: Boolean, default: false }
     },
     {
