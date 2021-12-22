@@ -1,11 +1,22 @@
+<<<<<<< HEAD
 import authenticateJWT from '@middlewares/jwt-auth.mdw';
 import { changePassword, getUserById, getUserByStudentId, updateProfile } from '@controllers/user.controller';
 import { Router } from 'express';
 
+=======
+import authenticateJWT from "@middlewares/jwt-auth.mdw";
+import {
+  changePassword,
+  getUserById,
+  getUserByStudentId,
+  updateProfile,
+} from "@controllers/user.controller";
+import { Router } from "express";
+>>>>>>> 4b81cd10026032009ac15e11d9df7074408eaa83
 
 // User-route
 const router = Router();
-router.use(authenticateJWT)
+router.use(authenticateJWT);
 
 /**
  * @swagger
@@ -34,14 +45,12 @@ router.use(authenticateJWT)
  *           type: boolean
  */
 
-
 /**
  * @swagger
  * tags:
  *   name: Users
  *   description: The users managing API
  */
-
 
 /**
  * @swagger
@@ -86,10 +95,17 @@ router.use(authenticateJWT)
  *                 _id: 6187f47c268e144dbeb5d9bc
  */
 
+<<<<<<< HEAD
 router.patch('/', updateProfile);
 router.get("/students/:studentId", getUserByStudentId)
 router.post('/change-password', changePassword);
 router.get('/:id', getUserById);
 
+=======
+router.patch("/", updateProfile);
+router.get("/students/:studentId", getUserByStudentId);
+router.post("/change-password", changePassword);
+router.get("/:id", getUserById);
+>>>>>>> 4b81cd10026032009ac15e11d9df7074408eaa83
 
 export default router;
