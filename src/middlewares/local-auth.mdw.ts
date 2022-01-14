@@ -1,6 +1,8 @@
 import passport from "passport";
 import passportLocal from "passport-local";
 import User from "@schemas/user.schema";
+import { get } from "lodash";
+import { USER_ROLE } from "@shared/constants";
 
 passport.use(
   new passportLocal.Strategy(
@@ -9,9 +11,11 @@ passport.use(
     },
     async (req, username, password, done) => {
       try {
+        const isAdmin = get(req, "body.isAdmin") || false;
         const user = await User.findOne({
           username: username,
           provider: "local",
+          role: isAdmin ? USER_ROLE.ADMIN : USER_ROLE.MEMBER,
         }).exec();
         if (!user) {
           return done(null, false);

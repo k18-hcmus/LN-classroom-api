@@ -5,6 +5,7 @@ import {
   logout,
   refreshToken,
   registerUser,
+  sendVerificationEmail,
 } from "@controllers/auth.controller";
 import googleAuth from "@middlewares/google-auth.mdw";
 import jwtAuthMdw from "@middlewares/jwt-auth.mdw";
@@ -20,4 +21,6 @@ router.post("/refresh-token", refreshToken);
 router.post("/register", registerUser);
 router.post("/logout", logout);
 router.post("/google", googleAuth, googleLogin);
+router.post("/verification", sendVerificationEmail);
+
 export default router;

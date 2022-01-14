@@ -6,10 +6,11 @@ export type UserModel = mongoose.Document & {
   username: string;
   password: string;
   email: string;
-  isActive?: boolean;
   provider: string;
   studentId?: string;
   hasInputStudentId: boolean;
+  status?: string;
+  role?: string;
 };
 
 export interface UserDocument extends UserModel {

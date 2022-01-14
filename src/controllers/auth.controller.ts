@@ -2,13 +2,17 @@ import { UserModel } from "@models/user.model";
 import * as RefreshTokenService from "@services/refresh-token.service";
 import * as userService from "@services/user.service";
 import {
+  DEFAULT_URL,
   JWT_KEY,
   REFRESH_TOKEN_MESSAGE,
   UNAUTHORIZE_MESSAGE,
+  USER_STATUS,
 } from "@shared/constants";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
+
+const getOrigin = (req: Request) => req.get("origin") || DEFAULT_URL;
 
 export const checkAuthentication = async (req: Request, res: Response) => {
   const user = req.body.user as UserModel;
@@ -42,8 +46,8 @@ export const login = async (req: Request, res: Response) => {
     accessToken,
     refreshToken
   );
-  res.clearCookie(JWT_KEY, cookieOptions(isHttps));
-  res.cookie(JWT_KEY, jwtPayload, cookieOptions(isHttps));
+  res.clearCookie(JWT_KEY + getOrigin(req), cookieOptions(isHttps));
+  res.cookie(JWT_KEY + getOrigin(req), jwtPayload, cookieOptions(isHttps));
   res.json(response);
 };
 
@@ -59,6 +63,7 @@ export const registerUser = async (req: Request, res: Response) => {
     username: user.username,
     email: user.email,
     password: user.password,
+    status: USER_STATUS.UNACTIVATED,
   } as UserModel);
   res.json({ _id: result._id });
 };
@@ -72,8 +77,8 @@ export const googleLogin = async (req: Request, res: Response) => {
     accessToken,
     refreshToken
   );
-  res.clearCookie(JWT_KEY, cookieOptions(isHttps));
-  res.cookie(JWT_KEY, jwtPayload, cookieOptions(isHttps));
+  res.clearCookie(JWT_KEY + getOrigin(req), cookieOptions(isHttps));
+  res.cookie(JWT_KEY + getOrigin(req), jwtPayload, cookieOptions(isHttps));
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...response } = user.toObject();
   res.json(response);
@@ -81,8 +86,8 @@ export const googleLogin = async (req: Request, res: Response) => {
 
 export const refreshToken = async (req: Request, res: Response) => {
   try {
-    if (req.cookies && req.cookies[JWT_KEY]) {
-      const jwtPayload = req.cookies[JWT_KEY];
+    if (req.cookies && req.cookies[JWT_KEY + getOrigin(req)]) {
+      const jwtPayload = req.cookies[JWT_KEY + getOrigin(req)];
       const { refreshToken } = RefreshTokenService.parseToken(jwtPayload);
       const tokens = await RefreshTokenService.performRefreshToken(
         refreshToken
@@ -95,8 +100,12 @@ export const refreshToken = async (req: Request, res: Response) => {
         );
         const isHttps = req.protocol === "https";
 
-        res.clearCookie(JWT_KEY, cookieOptions(isHttps));
-        res.cookie(JWT_KEY, newJwtPayload, cookieOptions(isHttps));
+        res.clearCookie(JWT_KEY + getOrigin(req), cookieOptions(isHttps));
+        res.cookie(
+          JWT_KEY + getOrigin(req),
+          newJwtPayload,
+          cookieOptions(isHttps)
+        );
         return res.json({ message: REFRESH_TOKEN_MESSAGE });
       }
       return res.status(StatusCodes.UNAUTHORIZED).send(UNAUTHORIZE_MESSAGE);
@@ -110,6 +119,17 @@ export const refreshToken = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   const isHttps = req.protocol === "https";
-  res.clearCookie(JWT_KEY, cookieOptions(isHttps));
+  res.clearCookie(JWT_KEY + getOrigin(req), cookieOptions(isHttps));
   res.status(StatusCodes.OK).send("OK");
+};
+
+export const sendVerificationEmail = async (req: Request, res: Response) => {
+  const { email } = req.body as unknown as {
+    email: string;
+    userId: string;
+  };
+  const url = req.get("origin") || DEFAULT_URL;
+  const result = await userService.sendAccountVerification(email, url);
+
+  res.json({ isSent: result });
 };

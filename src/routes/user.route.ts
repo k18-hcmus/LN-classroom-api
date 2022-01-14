@@ -1,11 +1,16 @@
 import authenticateJWT from "@middlewares/jwt-auth.mdw";
 import {
+  banUser,
   changePassword,
+  changeStudentId,
+  createAdminUser,
+  getAll,
   getUserById,
   getUserByStudentId,
   updateProfile,
 } from "@controllers/user.controller";
 import { Router } from "express";
+import checkAdmin from "@middlewares/check-admin.mdw";
 
 // User-route
 const router = Router();
@@ -91,6 +96,10 @@ router.use(authenticateJWT);
 router.patch("/", updateProfile);
 router.get("/students/:studentId", getUserByStudentId);
 router.post("/change-password", changePassword);
+router.post("/:id/ban", checkAdmin, banUser);
+router.post("/:id/map-student-id", checkAdmin, changeStudentId);
+router.post("/create-admin", checkAdmin, createAdminUser);
 router.get("/:id", getUserById);
+router.get("/", checkAdmin, getAll);
 
 export default router;

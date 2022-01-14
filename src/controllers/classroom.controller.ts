@@ -19,6 +19,11 @@ import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
 import { GradeBoardModel } from "@models/grade-board.model";
 
+export const getAllClassroom = async (req: Request, res: Response) => {
+  const classrooms = await classroomService.getAll();
+  res.json(classrooms);
+};
+
 export const getAllClassroomByUserId = async (req: Request, res: Response) => {
   const { _id } = req.body.user as unknown as UserModel;
   const classrooms = await classroomService.getAllByUserIdAndRole(_id);
@@ -27,7 +32,7 @@ export const getAllClassroomByUserId = async (req: Request, res: Response) => {
 
 export const getClassroom = async (req: Request, res: Response) => {
   const classroom = req.body.classroom;
-  const result = await classroomService.getClassroomByUserId(classroom._id);
+  const result = await classroomService.getClassroomInfoById(classroom._id);
   res.json(result);
 };
 
