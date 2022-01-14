@@ -3,6 +3,7 @@ import {
   addGradeStructure,
   appendListStudent,
   createClassroom,
+  getAllClassroom,
   getAllClassroomByUserId,
   getClassroom,
   getGradeBoard,
@@ -24,12 +25,14 @@ import {
 import authenticateJWT from "@middlewares/jwt-auth.mdw";
 import checkPermission from "@middlewares/role-base.mdw";
 import { Role } from "@services/role.service";
+import checkAdmin from "@middlewares/check-admin.mdw";
 
 // User-route
 const router = Router();
 router.use(authenticateJWT);
 
 router.get("/", getAllClassroomByUserId);
+router.get("/all", checkAdmin, getAllClassroom);
 router.post("/", createClassroom);
 router.post("/invitation", joinClassByLink);
 router.post("/join-by-classcode", joinClassroomByClassCode);

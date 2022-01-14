@@ -1,7 +1,7 @@
 import { UserModel } from "@models/user.model";
 import User from "@schemas/user.schema";
 import * as userService from "@services/user.service";
-import { UNAUTHORIZE_MESSAGE } from "@shared/constants";
+import { UNAUTHORIZE_MESSAGE, USER_STATUS } from "@shared/constants";
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
@@ -33,6 +33,7 @@ const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
         email: email,
         password: token,
         provider: "google",
+        status: USER_STATUS.ACTIVATED,
       } as UserModel);
     }
     req.body.user = user;

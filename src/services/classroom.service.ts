@@ -15,26 +15,46 @@ import randomstring from "randomstring";
 const secretOrKey = process.env.JWT_SECRET_KEY || JWT_SECRET;
 
 export const getAll = async () => {
-  return await ClassroomSchema.find().exec();
+  try {
+    return ClassroomSchema.find({})
+      .populate("owner")
+      .populate("teachers")
+      .populate("students")
+      .populate("gradeStructure")
+      .populate({
+        path: "gradeStructure",
+        populate: {
+          path: "gradeStructuresDetails",
+          model: "grade-structure-details",
+        },
+      })
+      .exec();
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const getClassroomsByUserId = async (filter: any) => {
-  return await ClassroomSchema.find(filter)
-    .populate("owner")
-    .populate("teachers")
-    .populate("students")
-    .populate("gradeStructure")
-    .populate({
-      path: "gradeStructure",
-      populate: {
-        path: "gradeStructuresDetails",
-        model: "grade-structure-details",
-      },
-    })
-    .exec();
+  try {
+    return ClassroomSchema.find(filter)
+      .populate("owner")
+      .populate("teachers")
+      .populate("students")
+      .populate("gradeStructure")
+      .populate({
+        path: "gradeStructure",
+        populate: {
+          path: "gradeStructuresDetails",
+          model: "grade-structure-details",
+        },
+      })
+      .exec();
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-export const getClassroomByUserId = async (classId: string) => {
+export const getClassroomInfoById = async (classId: string) => {
   return await ClassroomSchema.findById(classId)
     .populate("owner")
     .populate("teachers")

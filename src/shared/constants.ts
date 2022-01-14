@@ -20,6 +20,9 @@ export const UPDATE_USER_FAILED = "Failed to update profile!";
 export const UNEXPECTED_ERROR = "UNEXPECTED ERROR!";
 export const SUCCESSFULLY_MESSAGE = "SUCCESSFULLY!";
 export const NO_HAVE_STUDENT = "No use has this studentId";
+export const INVALID_BAN = "Cannot ban unactivated account!";
+export const MAIL_VERIFICATION_SUBJECT =
+  "Mail verification to classroom management";
 
 export enum VIEWS {
   CONFIRM_EMAIl = "confirm-email",
@@ -27,3 +30,14 @@ export enum VIEWS {
 }
 
 export const DEFAULT_URL = process.env.CLIENT_HOST || "http://localhost:3000";
+
+export enum USER_STATUS {
+  ACTIVATED = "Activated",
+  UNACTIVATED = "Unactivated",
+  BANNED = "Banned",
+}
+
+export enum USER_ROLE {
+  ADMIN = "Admin",
+  MEMBER = "Member",
+}

@@ -4,6 +4,7 @@ import isEmail from "validator/lib/isEmail";
 import isLength from "validator/lib/isLength";
 import isInt from "validator/lib/isInt";
 import bcrypt from "bcryptjs";
+import { USER_ROLE, USER_STATUS } from "@shared/constants";
 
 const passwordValidation = (password: string) => {
   return isLength(password, { min: 6 });
@@ -45,13 +46,20 @@ const UserSchema: Schema = new Schema(
         "Password must have at least 6 characters!",
       ],
     },
-    isActive: { type: Boolean, default: false },
     provider: { type: String, default: "local" },
     studentId: {
       type: String,
       validate: [isStudentId, "Student Id can only contain 8 digits!"],
     },
     hasInputStudentId: { type: Boolean, default: false },
+    status: {
+      type: String,
+      default: USER_STATUS.UNACTIVATED,
+    },
+    role: {
+      type: String,
+      default: USER_ROLE.MEMBER,
+    },
   },
   {
     timestamps: true,

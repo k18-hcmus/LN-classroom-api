@@ -2,23 +2,23 @@ import { UserModel } from "@models/user.model";
 import * as classroomService from "@services/classroom.service";
 import * as roleService from "@services/role.service";
 import { Role } from "@services/role.service";
-import { UNEXPECTED_ERROR } from "@shared/constants";
+import { UNEXPECTED_ERROR, USER_ROLE } from "@shared/constants";
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 const checkPermission =
-  (role: Role) => async (req: Request, res: Response, next: NextFunction) => {
+  (role: Role, allowAdmin = true) =>
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const classId = req.params.classId;
       if (classId) {
         const classroom = await classroomService.getClassroomById(classId);
         if (classroom) {
           const user = req.body.user as UserModel;
-          const isPermissionValid = roleService.isRoleSastified(
-            role,
-            user._id,
-            classroom
-          );
+          const isAdminAllow = allowAdmin && user.role === USER_ROLE.ADMIN;
+          const isPermissionValid =
+            isAdminAllow ||
+            roleService.isRoleSastified(role, user._id, classroom);
           if (isPermissionValid) {
             req.body.classroom = classroom;
             return next();

@@ -1,10 +1,25 @@
 import { UserModel } from "@models/user.model";
 import User from "@schemas/user.schema";
-import { EMAIL_EXISTED_ERROR, USERNAME_EXISTED_ERROR } from "@shared/constants";
+import {
+  EMAIL_EXISTED_ERROR,
+  JWT_SECRET,
+  MAIL_VERIFICATION_SUBJECT,
+  USERNAME_EXISTED_ERROR,
+  USER_ROLE,
+  VIEWS,
+} from "@shared/constants";
+import { prepareHtmlContent, sendMailWithHtml } from "@utils/mailer";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-export const getAll = async () => {
-  return await User.find().exec();
+const secretOrKey = process.env.JWT_SECRET_KEY || JWT_SECRET;
+
+export const getAllMember = async () => {
+  return await User.find({ role: USER_ROLE.MEMBER }).exec();
+};
+
+export const getAllAdmin = async () => {
+  return await User.find({ role: USER_ROLE.ADMIN }).exec();
 };
 
 export const getUserById = async (id: string) => {
@@ -53,6 +68,11 @@ export const isStudentIdInvalid = async (
   return !user.hasInputStudentId;
 };
 
+export const isStudentIdInvalidForAdminChange = async (studentId: string) => {
+  const result = await User.findOne({ studentId: studentId }).exec();
+  return result ? true : false;
+};
+
 export const comparePassword = (user: UserModel, password: string) => {
   return bcrypt.compareSync(password, user.password);
 };
@@ -63,4 +83,22 @@ export const getStudentByStudentId = async (studentId: string) => {
     return result;
   }
   return null;
+};
+
+export const createConfirmLink = (url: string, email: string) => {
+  const token = jwt.sign({ email }, secretOrKey);
+
+  return `${url}/confirm?token=${token}`;
+};
+
+export const sendAccountVerification = async (email: string, url: string) => {
+  try {
+    const inviteLink = createConfirmLink(url, email);
+    const html = prepareHtmlContent(VIEWS.CONFIRM_EMAIl, { inviteLink });
+    await sendMailWithHtml(MAIL_VERIFICATION_SUBJECT, email, html);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };
