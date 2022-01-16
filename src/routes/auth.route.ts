@@ -1,10 +1,13 @@
 import {
+  activateAccount,
   checkAuthentication,
   googleLogin,
   login,
   logout,
   refreshToken,
   registerUser,
+  resetPassword,
+  sendResetEmail,
   sendVerificationEmail,
 } from "@controllers/auth.controller";
 import googleAuth from "@middlewares/google-auth.mdw";
@@ -22,5 +25,8 @@ router.post("/register", registerUser);
 router.post("/logout", logout);
 router.post("/google", googleAuth, googleLogin);
 router.post("/verification", sendVerificationEmail);
+router.post("/forgot-password", sendResetEmail);
+router.post("/reset-password", resetPassword);
+router.post("/activate", activateAccount);
 
 export default router;

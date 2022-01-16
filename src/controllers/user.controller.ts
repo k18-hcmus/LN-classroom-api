@@ -65,10 +65,7 @@ export const changePassword = async (req: Request, res: Response) => {
   const user = req.body.user as UserModel;
   const isPasswordValid = userService.comparePassword(user, oldPassword);
   if (isPasswordValid) {
-    const encryptPassword = userService.encryptPassword(newPassword);
-    const result = await userService.updateUser(user._id, {
-      password: encryptPassword,
-    });
+    const result = await userService.changePassword(user._id, newPassword);
     return res.json(result);
   }
   res.status(StatusCodes.BAD_REQUEST).json({ message: UPDATE_USER_FAILED });

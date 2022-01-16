@@ -3,6 +3,7 @@ import User from "@schemas/user.schema";
 import {
   EMAIL_EXISTED_ERROR,
   JWT_SECRET,
+  MAIL_RESET_PASSWORD_SUBJECT,
   MAIL_VERIFICATION_SUBJECT,
   USERNAME_EXISTED_ERROR,
   USER_ROLE,
@@ -11,6 +12,7 @@ import {
 import { prepareHtmlContent, sendMailWithHtml } from "@utils/mailer";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { get } from "lodash";
 
 const secretOrKey = process.env.JWT_SECRET_KEY || JWT_SECRET;
 
@@ -24,6 +26,10 @@ export const getAllAdmin = async () => {
 
 export const getUserById = async (id: string) => {
   return await User.findById(id).exec();
+};
+
+export const getUserByEmail = async (email: string) => {
+  return await User.findOne({ email }).exec();
 };
 
 export const encryptPassword = (password: string) => {
@@ -101,4 +107,51 @@ export const sendAccountVerification = async (email: string, url: string) => {
     console.log(err);
     return false;
   }
+};
+
+export const createResetPasswordLink = (url: string, email: string) => {
+  const token = jwt.sign({ email }, secretOrKey);
+
+  return `${url}/reset-password?token=${token}`;
+};
+
+export const sendResetPasswordEmail = async (email: string, url: string) => {
+  try {
+    const inviteLink = createResetPasswordLink(url, email);
+    const html = prepareHtmlContent(VIEWS.RESET_PASSWORD, { inviteLink });
+    await sendMailWithHtml(MAIL_RESET_PASSWORD_SUBJECT, email, html);
+    return true;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+export const verifyResetPasswordToken = (token: string) => {
+  const decodedData = jwt.verify(token, secretOrKey);
+  const email = get(decodedData, "email", null);
+
+  if (email) {
+    return getUserByEmail(email);
+  }
+
+  return null;
+};
+
+export const changePassword = (userId: string, newPassword: string) => {
+  const encryptedPassword = encryptPassword(newPassword);
+  return updateUser(userId, {
+    password: encryptedPassword,
+  });
+};
+
+export const verifyActiveAccountToken = (token: string) => {
+  const decodedData = jwt.verify(token, secretOrKey);
+  const email = get(decodedData, "email", null);
+
+  if (email) {
+    return getUserByEmail(email);
+  }
+
+  return null;
 };
