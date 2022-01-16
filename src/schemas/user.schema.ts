@@ -6,7 +6,7 @@ import isInt from "validator/lib/isInt";
 import bcrypt from "bcryptjs";
 import { USER_ROLE, USER_STATUS } from "@shared/constants";
 
-const passwordValidation = (password: string) => {
+export const passwordValidation = (password: string) => {
   return isLength(password, { min: 6 });
 };
 

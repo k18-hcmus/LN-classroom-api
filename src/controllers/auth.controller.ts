@@ -1,4 +1,5 @@
 import { UserModel } from "@models/user.model";
+import { passwordValidation } from "@schemas/user.schema";
 import * as RefreshTokenService from "@services/refresh-token.service";
 import * as userService from "@services/user.service";
 import {
@@ -6,6 +7,7 @@ import {
   JWT_KEY,
   REFRESH_TOKEN_MESSAGE,
   UNAUTHORIZE_MESSAGE,
+  UNEXPECTED_ERROR,
   USER_STATUS,
 } from "@shared/constants";
 import { Request, Response } from "express";
@@ -126,10 +128,56 @@ export const logout = async (req: Request, res: Response) => {
 export const sendVerificationEmail = async (req: Request, res: Response) => {
   const { email } = req.body as unknown as {
     email: string;
-    userId: string;
   };
   const url = req.get("origin") || DEFAULT_URL;
   const result = await userService.sendAccountVerification(email, url);
 
   res.json({ isSent: result });
+};
+
+export const sendResetEmail = async (req: Request, res: Response) => {
+  const { email } = req.body as unknown as {
+    email: string;
+  };
+  const url = req.get("origin") || DEFAULT_URL;
+  const result = await userService.sendResetPasswordEmail(email, url);
+
+  res.json({ isSent: result });
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const { token } = req.query as unknown as {
+    token: string;
+  };
+  const { newPassword } = req.body as unknown as {
+    newPassword: string;
+  };
+  if (!passwordValidation(newPassword)) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ message: UNEXPECTED_ERROR });
+  }
+  const user = await userService.verifyResetPasswordToken(token);
+  if (user) {
+    const result = await userService.changePassword(user._id, newPassword);
+    console.log(newPassword);
+    console.log(user);
+    return res.json(result);
+  }
+  res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR });
+};
+
+export const activateAccount = async (req: Request, res: Response) => {
+  const { token } = req.query as unknown as {
+    token: string;
+  };
+  const user = await userService.verifyActiveAccountToken(token);
+  if (user && user.status === USER_STATUS.UNACTIVATED) {
+    const result = await userService.updateUser(user._id!, {
+      status: USER_STATUS.ACTIVATED,
+    });
+    return res.json(result);
+  }
+
+  res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR });
 };

@@ -22,11 +22,13 @@ export const SUCCESSFULLY_MESSAGE = "SUCCESSFULLY!";
 export const NO_HAVE_STUDENT = "No use has this studentId";
 export const INVALID_BAN = "Cannot ban unactivated account!";
 export const MAIL_VERIFICATION_SUBJECT =
-  "Mail verification to classroom management";
+  "Verification your account to join classroom management";
+export const MAIL_RESET_PASSWORD_SUBJECT = "Reset your password";
 
 export enum VIEWS {
   CONFIRM_EMAIl = "confirm-email",
   INVITATION = "invitation",
+  RESET_PASSWORD = "reset-password",
 }
 
 export const DEFAULT_URL = process.env.CLIENT_HOST || "http://localhost:3000";
