@@ -325,11 +325,14 @@ export const getPostByClassId = async (req: Request, res: Response) => {
   const classId = req.params.classId;
   const classroom = await classroomService.getClassroomById(classId)
   const idGradeStructure = classroom!.gradeStructure
-  const homeworks = await gradeStructureService.getGradeStructure(idGradeStructure!.toString())
-  const idHomeworks = homeworks!.gradeStructuresDetails.map((homework, index) => homework._id.toString())
-  const posts = await classroomService.getPosts()
-  const teacherPosts = posts.filter((post) => idHomeworks.includes(post.idHomework))
-  res.json(teacherPosts)
+  if (idGradeStructure) {
+    const homeworks = await gradeStructureService.getGradeStructure(idGradeStructure!.toString())
+    const idHomeworks = homeworks!.gradeStructuresDetails.map((homework) => homework._id.toString())
+    const posts = await classroomService.getPosts()
+    const teacherPosts = posts.filter((post) => idHomeworks.includes(post.idHomework))
+    return res.json(teacherPosts)
+  }
+  res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR });
 }
 
 export const addCommentByPostId = async (req: Request, res: Response) => {
