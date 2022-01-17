@@ -18,6 +18,7 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
 import { GradeBoardModel } from "@models/grade-board.model";
+import { PostModel } from "@models/post.model";
 
 export const getAllClassroom = async (req: Request, res: Response) => {
   const classrooms = await classroomService.getAll();
@@ -301,3 +302,38 @@ export const updateStudentPoint = async (req: Request, res: Response) => {
   }
   res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR });
 };
+
+export const addPointReview = async (req: Request, res: Response) => {
+  const { data } = req.body as unknown as { data: PostModel }
+  data.comments = []
+  await classroomService.addPost(data)
+}
+
+export const getPostsByIdStudent = async (req: Request, res: Response) => {
+  const idStudent = req.params.idStudent
+  const result = await classroomService.getPostByStudentId(idStudent)
+  res.json(result)
+}
+
+export const getReviewPostById = async (req: Request, res: Response) => {
+  const idPost = req.params.idPost
+  const result = await classroomService.getPostById(idPost)
+  res.json(result)
+}
+
+export const getPostByClassId = async (req: Request, res: Response) => {
+  const classId = req.params.classId;
+  const classroom = await classroomService.getClassroomById(classId)
+  const idGradeStructure = classroom!.gradeStructure
+  const homeworks = await gradeStructureService.getGradeStructure(idGradeStructure!.toString())
+  const idHomeworks = homeworks!.gradeStructuresDetails.map((homework, index) => homework._id.toString())
+  const posts = await classroomService.getPosts()
+  const teacherPosts = posts.filter((post) => idHomeworks.includes(post.idHomework))
+  res.json(teacherPosts)
+}
+
+export const addCommentByPostId = async (req: Request, res: Response) => {
+  const { idPost, idPerson, content } = req.body as unknown as { idPost: string, idPerson: string, content: string }
+  const result = await classroomService.addCommentPost(idPost, idPerson, content)
+  res.json(result)
+}

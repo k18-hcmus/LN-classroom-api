@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   addGradeStructure,
+  addPointReview,
   appendListStudent,
   createClassroom,
   getAllClassroom,
@@ -21,6 +22,10 @@ import {
   updateGradeStructure,
   updateGradeStructureDetail,
   updateStudentPoint,
+  getPostsByIdStudent,
+  getReviewPostById,
+  getPostByClassId,
+  addCommentByPostId,
 } from "@controllers/classroom.controller";
 import authenticateJWT from "@middlewares/jwt-auth.mdw";
 import checkPermission from "@middlewares/role-base.mdw";
@@ -104,5 +109,10 @@ router.get(
   getGradeBoard
 );
 router.get("/:classId", checkPermission(Role.ANY), getClassroom);
+router.post("/:classId/review-point/:idHomework/:idStudent",addPointReview)
+router.get("/:classId/:idStudent/posts",getPostsByIdStudent)
+router.get("/:classId/posts/:idPost",getReviewPostById)
+router.get("/:classId/posts",getPostByClassId)
+router.patch("/:classId/posts/comment/:idPost",addCommentByPostId)
 
 export default router;
