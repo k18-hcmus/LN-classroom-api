@@ -1,4 +1,5 @@
 import { ClassroomModel } from "@models/classroom.model";
+import { PostModel } from "@models/post.model";
 import ClassroomSchema from "@schemas/classroom.schema";
 import {
   INVITATION_EMAIL_EXPIRED,
@@ -11,6 +12,7 @@ import { prepareHtmlContent, sendMailWithHtml } from "@utils/mailer";
 import jwt from "jsonwebtoken";
 import { get } from "lodash";
 import randomstring from "randomstring";
+import PostSchema from "@schemas/post.schema"
 
 const secretOrKey = process.env.JWT_SECRET_KEY || JWT_SECRET;
 
@@ -235,3 +237,33 @@ export const isUserTeacher = (userId: string, classroom: ClassroomModel) => {
 export const isUserOwner = (userId: string, classroom: ClassroomModel) => {
   return classroom.owner.toString() === userId.toString();
 };
+
+export const addPost = async (payload: PostModel) => {
+  return await new PostSchema(payload).save();
+}
+
+export const getPostByStudentId = async (idStudent: string) => {
+  return await PostSchema.find({ idStudent })
+}
+
+export const getPostById = async (id: string) => {
+  return await PostSchema.findOne({ id })
+}
+
+export const getClassroonById = async (id: string) => {
+  return await ClassroomSchema.findOne({ id })
+}
+
+export const getPosts = async () => {
+  return await PostSchema.find()
+}
+
+export const addCommentPost = async (id: string, idPerson: string, content: string) => {
+  return PostSchema.findByIdAndUpdate(
+    id,
+    { $push: { comments: { idPerson, content } } },
+    {
+      new: true,
+    }
+  ).exec();
+}
