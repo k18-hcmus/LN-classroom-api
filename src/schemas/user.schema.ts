@@ -60,6 +60,9 @@ const UserSchema: Schema = new Schema(
       type: String,
       default: USER_ROLE.MEMBER,
     },
+    notifications: {
+      type: [Object],
+    },
   },
   {
     timestamps: true,

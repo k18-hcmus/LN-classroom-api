@@ -12,7 +12,7 @@ import { prepareHtmlContent, sendMailWithHtml } from "@utils/mailer";
 import jwt from "jsonwebtoken";
 import { get } from "lodash";
 import randomstring from "randomstring";
-import PostSchema from "@schemas/post.schema"
+import PostSchema from "@schemas/post.schema";
 
 const secretOrKey = process.env.JWT_SECRET_KEY || JWT_SECRET;
 
@@ -240,21 +240,25 @@ export const isUserOwner = (userId: string, classroom: ClassroomModel) => {
 
 export const addPost = async (payload: PostModel) => {
   return await new PostSchema(payload).save();
-}
+};
 
 export const getPostByStudentId = async (idStudent: string) => {
-  return await PostSchema.find({ idStudent }).exec()
-}
+  return await PostSchema.find({ idStudent }).populate("idHomework").exec();
+};
 
 export const getPostById = async (id: string) => {
-  return await PostSchema.findById(id).exec()
-}
+  return await PostSchema.findById(id).populate("idHomework").exec();
+};
 
 export const getPosts = async () => {
-  return await PostSchema.find({}).exec()
-}
+  return await PostSchema.find({}).populate("idHomework").exec();
+};
 
-export const addCommentPost = async (id: string, idPerson: string, content: string) => {
+export const addCommentPost = async (
+  id: string,
+  idPerson: string,
+  content: string
+) => {
   return PostSchema.findByIdAndUpdate(
     id,
     { $push: { comments: { idPerson, content } } },
@@ -262,4 +266,14 @@ export const addCommentPost = async (id: string, idPerson: string, content: stri
       new: true,
     }
   ).exec();
-}
+};
+
+export const finalizedPost = async (id: string, finalizedPoint: number) => {
+  return PostSchema.findByIdAndUpdate(
+    id,
+    { finalizedPoint, isFinalized: true },
+    {
+      new: true,
+    }
+  ).exec();
+};

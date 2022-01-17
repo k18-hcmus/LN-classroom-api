@@ -1,4 +1,4 @@
 export interface Comment {
-    idPerson: string,
-    content: string,
+  idPerson: string;
+  content: string;
 }
