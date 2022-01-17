@@ -243,19 +243,15 @@ export const addPost = async (payload: PostModel) => {
 }
 
 export const getPostByStudentId = async (idStudent: string) => {
-  return await PostSchema.find({ idStudent })
+  return await PostSchema.find({ idStudent }).exec()
 }
 
 export const getPostById = async (id: string) => {
-  return await PostSchema.findOne({ id })
-}
-
-export const getClassroonById = async (id: string) => {
-  return await ClassroomSchema.findOne({ id })
+  return await PostSchema.findById(id).exec()
 }
 
 export const getPosts = async () => {
-  return await PostSchema.find()
+  return await PostSchema.find({}).exec()
 }
 
 export const addCommentPost = async (id: string, idPerson: string, content: string) => {

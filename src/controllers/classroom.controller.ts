@@ -306,7 +306,8 @@ export const updateStudentPoint = async (req: Request, res: Response) => {
 export const addPointReview = async (req: Request, res: Response) => {
   const { data } = req.body as unknown as { data: PostModel }
   data.comments = []
-  await classroomService.addPost(data)
+  const result = await classroomService.addPost(data)
+  res.json(result)
 }
 
 export const getPostsByIdStudent = async (req: Request, res: Response) => {
@@ -317,6 +318,7 @@ export const getPostsByIdStudent = async (req: Request, res: Response) => {
 
 export const getReviewPostById = async (req: Request, res: Response) => {
   const idPost = req.params.idPost
+  console.log(idPost)
   const result = await classroomService.getPostById(idPost)
   res.json(result)
 }
