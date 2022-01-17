@@ -26,6 +26,7 @@ import {
   getReviewPostById,
   getPostByClassId,
   addCommentByPostId,
+  finalizedPost,
 } from "@controllers/classroom.controller";
 import authenticateJWT from "@middlewares/jwt-auth.mdw";
 import checkPermission from "@middlewares/role-base.mdw";
@@ -109,10 +110,31 @@ router.get(
   getGradeBoard
 );
 router.get("/:classId", checkPermission(Role.ANY), getClassroom);
-router.post("/:classId/review-point/:idHomework/:idStudent",addPointReview)
-router.get("/:classId/:idStudent/posts",getPostsByIdStudent)
-router.get("/:classId/posts/:idPost",getReviewPostById)
-router.get("/:classId/posts",getPostByClassId)
-router.patch("/:classId/posts/comment/:idPost",addCommentByPostId)
+router.post(
+  "/:classId/review-point/:idHomework/:idStudent",
+  checkPermission(Role.STUDENT),
+  addPointReview
+);
+router.get(
+  "/:classId/:idStudent/posts",
+  checkPermission(Role.ANY),
+  getPostsByIdStudent
+);
+router.get(
+  "/:classId/posts/:idPost",
+  checkPermission(Role.ANY),
+  getReviewPostById
+);
+router.get("/:classId/posts", checkPermission(Role.ANY), getPostByClassId);
+router.patch(
+  "/:classId/posts/comment/:idPost",
+  checkPermission(Role.ANY),
+  addCommentByPostId
+);
+router.patch(
+  "/:classId/posts/:idPost",
+  checkPermission(Role.UPPER_ROLE),
+  finalizedPost
+);
 
 export default router;

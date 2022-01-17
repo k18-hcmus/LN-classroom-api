@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { NotificationModel } from "./notification.model";
 
 export type UserModel = mongoose.Document & {
   firstName: string;
@@ -11,6 +12,7 @@ export type UserModel = mongoose.Document & {
   hasInputStudentId: boolean;
   status?: string;
   role?: string;
+  notifications?: NotificationModel[];
 };
 
 export interface UserDocument extends UserModel {

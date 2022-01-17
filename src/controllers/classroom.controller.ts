@@ -304,41 +304,62 @@ export const updateStudentPoint = async (req: Request, res: Response) => {
 };
 
 export const addPointReview = async (req: Request, res: Response) => {
-  const { data } = req.body as unknown as { data: PostModel }
-  data.comments = []
-  const result = await classroomService.addPost(data)
-  res.json(result)
-}
+  const { data } = req.body as unknown as { data: PostModel };
+  data.comments = [];
+  const result = await classroomService.addPost(data);
+  res.json(result);
+};
 
 export const getPostsByIdStudent = async (req: Request, res: Response) => {
-  const idStudent = req.params.idStudent
-  const result = await classroomService.getPostByStudentId(idStudent)
-  res.json(result)
-}
+  const idStudent = req.params.idStudent;
+  const result = await classroomService.getPostByStudentId(idStudent);
+  res.json(result);
+};
 
 export const getReviewPostById = async (req: Request, res: Response) => {
-  const idPost = req.params.idPost
-  console.log(idPost)
-  const result = await classroomService.getPostById(idPost)
-  res.json(result)
-}
+  const idPost = req.params.idPost;
+  console.log(idPost);
+  const result = await classroomService.getPostById(idPost);
+  res.json(result);
+};
 
 export const getPostByClassId = async (req: Request, res: Response) => {
   const classId = req.params.classId;
-  const classroom = await classroomService.getClassroomById(classId)
-  const idGradeStructure = classroom!.gradeStructure
+  const classroom = await classroomService.getClassroomById(classId);
+  const idGradeStructure = classroom!.gradeStructure;
   if (idGradeStructure) {
-    const homeworks = await gradeStructureService.getGradeStructure(idGradeStructure!.toString())
-    const idHomeworks = homeworks!.gradeStructuresDetails.map((homework) => homework._id.toString())
-    const posts = await classroomService.getPosts()
-    const teacherPosts = posts.filter((post) => idHomeworks.includes(post.idHomework))
-    return res.json(teacherPosts)
+    const homeworks = await gradeStructureService.getGradeStructure(
+      idGradeStructure!.toString()
+    );
+    const idHomeworks = homeworks!.gradeStructuresDetails.map((homework) =>
+      homework._id.toString()
+    );
+    const posts = await classroomService.getPosts();
+    const teacherPosts = posts.filter((post) =>
+      idHomeworks.includes(post.idHomework)
+    );
+    return res.json(teacherPosts);
   }
   res.status(StatusCodes.BAD_REQUEST).json({ message: UNEXPECTED_ERROR });
-}
+};
 
 export const addCommentByPostId = async (req: Request, res: Response) => {
-  const { idPost, idPerson, content } = req.body as unknown as { idPost: string, idPerson: string, content: string }
-  const result = await classroomService.addCommentPost(idPost, idPerson, content)
-  res.json(result)
-}
+  const { idPost, idPerson, content } = req.body as unknown as {
+    idPost: string;
+    idPerson: string;
+    content: string;
+  };
+  const result = await classroomService.addCommentPost(
+    idPost,
+    idPerson,
+    content
+  );
+  res.json(result);
+};
+
+export const finalizedPost = async (req: Request, res: Response) => {
+  const idPost = req.params.idPost;
+  const { point } = req.body as unknown as { point: number };
+  const result = await classroomService.finalizedPost(idPost, point);
+  res.json(result);
+};
