@@ -331,12 +331,14 @@ export const getPostByClassId = async (req: Request, res: Response) => {
     const homeworks = await gradeStructureService.getGradeStructure(
       idGradeStructure!.toString()
     );
-    const idHomeworks = homeworks!.gradeStructuresDetails.map((homework) =>
-      homework._id.toString()
+    const idHomeworks = homeworks!.gradeStructuresDetails.map(
+      (homework) => homework._id
     );
     const posts = await classroomService.getPosts();
     const teacherPosts = posts.filter((post) =>
-      idHomeworks.includes(post.idHomework)
+      idHomeworks.some((idHomework) =>
+        idHomework.equals(get(post.idHomework, "_id"))
+      )
     );
     return res.json(teacherPosts);
   }
