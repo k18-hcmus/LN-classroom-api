@@ -8,7 +8,6 @@ const GradeStructureSchema: Schema = new Schema(
     studentId: {
       type: String,
       validate: [isStudentId, "Student Id can only contain 8 digits!"],
-      index: { unique: true },
       require: true,
     },
     classId: { type: mongoose.Types.ObjectId, ref: "classrooms" },
