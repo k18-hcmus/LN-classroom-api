@@ -22,6 +22,8 @@ function getPath(loc: string) : string {
         await remove(getPath('./dist/'));
         // Copy front-end files
         await copy(getPath('./src/public'), getPath('./dist/public'));
+        // Copy views files
+        await copy(getPath('./src/views'), getPath('./dist/views'));
         // Copy production env file
         await copy(getPath('./src/pre-start/env/production.env'), getPath('./dist/pre-start/env/production.env'));
         // Copy back-end files
